@@ -12,7 +12,7 @@ Todo en español rioplatense: código, comentarios, mensajes de commit, pull req
 - **Las frases se graban.** Cada frase nueva necesita un id estable y corto. No reutilizar un id para otro texto: rompería la grabación que ya existe.
 - **El motor no toca la pantalla.** `js/mazo.js`, `js/motor.js` y `js/bot.js` no usan `document`, `window` ni `Voz`, y funcionan en Node.
 - **Toda regla nueva o cambiada en el motor lleva prueba** en `test/`.
-- **Estética:** seguir el design system Truco Recreo (ver `CONTEXT.md`). No invertir en el estilo viejo. Si algo nuevo afecta la estética (pantallas, componentes), avisarle al papá para que lo sume la sesión de diseño.
+- **Estética:** seguir el design system Truco Recreo (ver `CONTEXT.md` y "Revisión de diseño"). No invertir en el estilo viejo ni inventar estilos fuera del sistema. Si algo nuevo afecta la estética (pantallas, componentes), avisarle al papá para que lo sume la sesión de diseño.
 - **Personajes:** Capi es rival y guía. No meter al zorro ni al carpincho en pantallas ni frases nuevas.
 - Sin dependencias ni paso de compilación, salvo que se acuerde.
 
@@ -44,6 +44,12 @@ Para un cambio grande, **antes de commitear** el código:
 El revisor está definido en `.claude/agents/revisor-fable.md`. Si la herramienta no lo carga, usar un agente general con el modelo Fable y las mismas instrucciones. Al revisor se le pasa el código y el plan, no las conclusiones propias: tiene que leer el código por su cuenta.
 
 Los cambios chicos (una frase, un ajuste de estilo, un arreglo de una línea) no necesitan revisión.
+
+## Revisión de diseño (pantallas nuevas o cambiadas)
+
+La estética es el design system "Truco Recreo" (https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa): leer su `README.md` antes de tocar una pantalla.
+
+Antes de commitear una pantalla nueva o cambiada, sacar capturas en 1024×768 y 390×844 y pasárselas al diseñador UI/UX (`.claude/agents/disenador-ui.md`). Corregir lo que marque en "Hay que arreglar": cosas que se pisan, se cortan o no se pueden tocar. Si la herramienta no lo carga, usar un agente general con las mismas instrucciones.
 
 ## Git
 

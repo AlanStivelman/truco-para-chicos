@@ -13,6 +13,10 @@
 | 4. El envido (práctica y partida a 9) | Listo |
 | 5. Partida completa a 15 | Pendiente |
 
+## Estética
+
+Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como rival y guía (también en las frases), Fredoka desde el repo, íconos de trazo sin emojis, camino de niveles, inicio con Aprender y Jugar (partida a 15 contra Capi, `nivelActual = 'libre'`, estrellas en `progreso.estrellas.libre`). Después, las frases pasaron a primera persona y los ids `zorro-*` a `capi-*` (ver "Las frases").
+
 ## Qué está verificado
 
 - `npm test`: 33 pruebas, entre ellas las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0 y que existan todas las frases que pide la pantalla (y ninguna nombre al zorro ni al carpincho).
@@ -27,22 +31,19 @@
 
 - Nivel 5 (partida a 15).
 - Pantalla para que el papá grabe las frases con su voz.
-- **Aplicar la estética Truco Recreo** (ver `CONTEXT.md`): baraja ilustrada, el dibujo real de Capi, colores, Fredoka, íconos de trazo, pantalla de niveles como camino. Al hacerlo, renombrar en el código lo que todavía dice zorro o carpincho (`ZORRO`, `#hueco-zorro`, `data-carpincho`, `.carpincho`).
-- **Modo "Jugar"** desde el inicio: partida directa a 15 contra Capi (comparte casi todo con el nivel 5).
+- **Nivel 5** en el camino sigue "pronto", aunque el botón Jugar del inicio ya ofrece la partida a 15 (sin guía).
 - Confirmar que el link de GitHub Pages abre bien en la tablet (https://alanstivelman.github.io/truco-para-chicos/).
 
 ## Para retomar
 
 Orden recomendado:
 1. **Pantalla para grabar la voz** y guion de grabación (cada frase con su id y tono). El texto de las frases ya está cerrado para grabar.
-2. **Estética Truco Recreo** (Capi ya está en la voz; falta el dibujo y el resto).
-3. **Nivel 5 y modo "Jugar"** (comparten la partida a 15 contra Capi). Van a necesitar frases nuevas: "Me voy al mazo", "¿Jugamos o aprendemos?", números hasta 15.
+2. **Nivel 5**: la partida a 15 con guía (el modo Jugar ya la juega sin guía, con `jugarLibre()`). Va a necesitar frases nuevas si se habilita irse al mazo ("Me voy al mazo").
 
 Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
 - Design system: https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa. Empezar por `project/README.md` y `project/tokens.json`.
 - Mockups aprobados, fila B "Recreo" (inicio, juego, niveles, fin): https://claude.ai/artifact/SWTix64oPQV4gWZ8QuUBnF
-- En el asset store del design system: la baraja (`baraja-espanola.webp`, id `d2c04ba4d621f329f582c5f866035eb6`; 2000×1278, 12 columnas del 1 al 12 × 5 filas: oros, copas, espadas, bastos y dorso en la fila 5, columna 2; recorte con `background-size: 1200% 500%` y `background-position: (col/11·100)% (fila/4·100)%`) y Capi en SVG (id `fad9e455464043557de81f73052af48c`). Copiarlos al repo, por ejemplo en `img/`.
-- **Licencia de la baraja pendiente** (parece "Naipes libres"): confirmar y poner el crédito antes de publicar con ella.
+- En el asset store del design system: la baraja (`baraja-espanola.webp`, id `d2c04ba4d621f329f582c5f866035eb6`; 2000×1278, 12 columnas del 1 al 12 × 5 filas: oros, copas, espadas, bastos y dorso en la fila 5, columna 2; recorte con `background-size: 1200% 500%` y `background-position: (col/11·100)% (fila/4·100)%`) y Capi en SVG (id `fad9e455464043557de81f73052af48c`). Ya están copiados en `img/` (`baraja-espanola.webp` y `capi.svg`).
 
 Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGENTS.md`), y unir a `main` sin pedir permiso cuando se cumplen las condiciones.
 
@@ -51,7 +52,6 @@ Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGE
 - **Habla Capi en primera persona**, como rival y guía: "Yo tiro el tres de copa", "Esa la gané yo", "¡Te canto truco!". Los cantos del nene son cortos ("¡Truco!", "¡Quiero!") y los de Capi llevan "te canto" o "sí" para que se note quién habla.
 - **Tonada de la mesa:** "¡Son buenas!" cuando Capi pierde el envido; la primera vez que el nene lo pierde, Capi le explica que se dice "son buenas". "¡Ah, bueno! Dejame pensar." la primera vez que el nene canta truco en la partida. "Esperá que tomo un matecito" antes de la tercera ronda. "¡Ojo al piojo!" en las pistas de no querer. "Dale, te toca", "me ganaste, che".
 - **Ids:** los que nombraban al zorro pasaron a `capi-*` (`capi-jugo`, `capi-truco`, `capi-gano-N`, `capi-tengo`, `mano-capi`, `envido-capi`, etc.). Se cambiaron sin miedo porque todavía no había ninguna grabación.
-- **Dibujo provisorio:** el rival se dibuja con la misma capibara que el guía, y se sacó el zorro de arriba. Es transitorio hasta la estética Truco Recreo.
 
 ## Cómo está armado el nivel 0
 

@@ -37,6 +37,9 @@ const DE_PANTALLA = new Set([
   'truco-progreso', 'hablando', 'activa', 'niveles', 'juego', 'fin', 'button', 'div', 'role', 'aria-label',
   'nivel', 'si', 'duelo', 'practica', 'tabla', 'visible', 'hidden', 'mio', 'suyo', 'tocado', 'sugerida', 'escalon',
   'destapado', 'sin-fuerza', 'pierde', 'brilla', 'muestra', 'elegida', 'fuerte', 'yo', 'zorro',
+  // íconos, eventos del navegador y el partido libre
+  'libro', 'dos', 'tres', 'megafono', 'trofeo', 'play', 'reloj', 'candado', 'casa', 'mapa', 'tilde', 'cruz',
+  'click', 'pointerdown', 'resize', 'actual', 'libre',
   // sonidos
   'carta', 'bien', 'estrella',
   // acciones y eventos del motor, y palos
