@@ -222,3 +222,19 @@ test('500 partidas completas entre dos bots terminan bien', () => {
   // Los dos bots juegan igual: ninguno debería ganar casi siempre.
   assert.ok(victorias[0] > 150 && victorias[1] > 150, `victorias: ${victorias}`);
 });
+
+test('el bot respeta las acciones excluidas del nivel', () => {
+  const rng = azar(7);
+  const excluir = ['envido', 'real-envido', 'mazo'];
+  for (let p = 0; p < 100; p++) {
+    const e = Motor.nuevaPartida({ meta: 6, rng });
+    while (e.fase !== 'fin-partida') {
+      Motor.nuevaRonda(e);
+      while (e.fase === 'jugando') {
+        const a = Bot.elegir(e, rng, excluir);
+        assert.ok(!excluir.includes(a.tipo));
+        Motor.aplicar(e, a);
+      }
+    }
+  }
+});

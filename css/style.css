@@ -206,7 +206,44 @@ body.hablando .carpincho svg { animation: hablar 0.7s ease-in-out infinite; }
   justify-content: center;
 }
 
+/* ---------- Puntos y botones de canto ---------- */
+.tantos { display: flex; gap: 0.8vmin; min-height: clamp(8px, 2vmin, 16px); }
+.tantos i {
+  width: clamp(8px, 2vmin, 16px);
+  height: clamp(8px, 2vmin, 16px);
+  border-radius: 50%;
+  background: var(--crema-oscuro);
+}
+.tantos i.si { background: var(--sol); }
+#tantos-zorro i.si { background: var(--naranja); }
+.cantos { display: flex; flex-direction: column; gap: 2.5vmin; align-items: center; justify-content: center; min-width: clamp(84px, 20vmin, 160px); }
+.canto {
+  --lado: clamp(84px, 20vmin, 160px);
+  width: var(--lado);
+  height: var(--lado);
+  border-radius: 24%;
+  background: var(--sol);
+  box-shadow: 0 0.9vmin 0 var(--sol-fuerte);
+  font-size: calc(var(--lado) * 0.5);
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--lado) * 0.05);
+  transition: transform 0.12s;
+}
+.canto:active { transform: translateY(0.6vmin); }
+.canto-quiero { background: #9FD3A4; box-shadow: 0 0.9vmin 0 #5FA868; }
+.canto-no-quiero { background: #F2B5A8; box-shadow: 0 0.9vmin 0 #D98572; }
+.canto .vale { display: flex; gap: calc(var(--lado) * 0.05); }
+.canto .vale i { width: calc(var(--lado) * 0.1); height: calc(var(--lado) * 0.1); border-radius: 50%; background: var(--blanco); }
+.canto.sugerida { animation: sugerir-boton 1.6s ease-in-out infinite; }
+@keyframes sugerir-boton { 50% { transform: scale(1.1); } }
+
 @media (orientation: portrait) {
+  .mesa { flex-wrap: wrap; align-content: center; }
+  .cantos { flex-direction: row; width: 100%; min-height: clamp(84px, 20vmin, 160px); }
   .mano { gap: 1.5vmin; min-height: calc(min(29vw, 25vh) * 1.45); }
   .mano .carta { --cw: min(29vw, 25vh); }
   .mesa .carta, .hueco { --cw: min(36vw, 22vh); }

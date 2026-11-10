@@ -2,7 +2,7 @@
 const $ = s => document.querySelector(s);
 const espera = ms => new Promise(r => setTimeout(r, ms));
 
-const NIVELES_LISTOS = 2; // los niveles 3, 4 y 5 todavía no están hechos
+const NIVELES_LISTOS = 3; // los niveles 4 y 5 todavía no están hechos
 const ICONOS_NIVEL = ['💪', '🖐️', '📣', '➕', '🏆'];
 
 let progreso = { estrellas: {} };
@@ -52,7 +52,7 @@ function irANiveles(saludo) {
 
 function empezar(n) {
   nivelActual = n;
-  if (n === 1) nivel1(); else nivel2();
+  [nivel1, nivel2, nivel3][n - 1]();
 }
 
 function prepararJuego({ conMano, conZorro }) {
@@ -157,15 +157,7 @@ async function nivel2() {
   const RONDAS = 3;
   let ganadas = 0;
   prepararJuego({ conMano: true, conZorro: true });
-  const mesa = $('#mesa');
-  mesa.innerHTML =
-    `<div class="lugar"><div class="quien" data-zorro>${SVG_ZORRO}</div><div class="hueco" id="hueco-zorro"></div></div>` +
-    `<div class="lugar"><div class="quien yo">★</div><div class="hueco" id="hueco-yo"></div></div>`;
-  const poner = (quien, c) => {
-    const h = $('#hueco-' + quien);
-    h.innerHTML = '';
-    if (c) { h.appendChild(crearCarta(c)); Voz.sonido('carta'); }
-  };
+  montarMesa();
   ayuda = () => Voz.decir('n2-intro');
   pintarMarcadores(3, []);
   await Voz.decir('n2-intro');
@@ -252,6 +244,183 @@ async function nivel2() {
     if (!vivo()) return;
   }
   terminar(2, ganadas >= 2 ? 3 : ganadas === 1 ? 2 : 1);
+}
+
+// ---------- Mesa compartida por los niveles con rival ----------
+function montarMesa() {
+  $('#mesa').innerHTML =
+    `<div class="lugar"><div class="quien">${SVG_ZORRO}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
+    `<div class="lugar"><div class="quien yo">★</div><div class="tantos" id="tantos-yo"></div><div class="hueco" id="hueco-yo"></div></div>` +
+    `<div class="cantos" id="cantos"></div>`;
+}
+function poner(quien, c) {
+  const h = $('#hueco-' + quien);
+  h.innerHTML = '';
+  if (c) { h.appendChild(crearCarta(c)); Voz.sonido('carta'); }
+}
+function pintarTantos(puntos, meta) {
+  ['yo', 'zorro'].forEach((q, k) => {
+    $('#tantos-' + q).innerHTML = Array.from({ length: meta }, (_, i) => `<i class="${i < puntos[k] ? 'si' : ''}"></i>`).join('');
+  });
+}
+
+// ---------- Nivel 3: el truco ----------
+const YO = 0, ZORRO = 1;
+const BOTON_CANTO = {
+  'truco': { icono: '📣', puntos: 2 },
+  'retruco': { icono: '📣', puntos: 3 },
+  'vale-cuatro': { icono: '📣', puntos: 4 },
+  'quiero': { icono: '👍' },
+  'no-quiero': { icono: '👎' },
+};
+
+// Las dos primeras rondas están armadas para enseñar: en la primera el chico tiene
+// cartas para cantar truco; en la segunda el zorro canta y conviene no querer.
+function repartoGuiado(n) {
+  const m = barajar(MAZO);
+  const saca = cond => m.splice(m.findIndex(cond), 1)[0];
+  const fuertes = [saca(c => c.f === (n === 0 ? 14 : 13)), saca(c => c.f === (n === 0 ? 11 : 12)), saca(c => c.f <= 3)];
+  const flojas = n === 0
+    ? [saca(c => c.f === 10), saca(c => c.f >= 4 && c.f <= 8), saca(c => c.f >= 4 && c.f <= 8)]
+    : [saca(c => c.f <= 5), saca(c => c.f <= 5), saca(c => c.f <= 5)];
+  return n === 0 ? [fuertes, flojas] : [flojas, fuertes];
+}
+
+// Muestra la mano y los botones de canto, y espera a que el chico elija.
+function pedirAccion(e, guiado, excluir) {
+  const permitidas = Motor.acciones(e).filter(a => !excluir.includes(a.tipo));
+  const puedeTirar = permitidas.some(a => a.tipo === 'carta');
+  const sugerida = Bot.elegir(e, () => 0, excluir);
+  const rival = e.mesa[ZORRO];
+  let pista;
+  if (sugerida.tipo === 'carta') pista = !rival ? 'pista-fuerte' : sugerida.carta.f > rival.f ? 'pista-gana' : 'pista-baja';
+  else if (sugerida.tipo === 'truco') pista = 'pista-truco';
+  else if (sugerida.tipo === 'quiero') pista = 'pista-quiero';
+  else if (sugerida.tipo === 'no-quiero') pista = 'pista-no-quiero';
+  else pista = 'pista-subir';
+
+  return new Promise(ok => {
+    let elegido = false;
+    const elegir = a => {
+      if (elegido) return;
+      elegido = true;
+      ayuda = () => {};
+      Voz.parar();
+      $('#cantos').innerHTML = '';
+      document.querySelectorAll('#mano .carta').forEach(el => { el.disabled = true; el.classList.remove('sugerida'); });
+      ok(a);
+    };
+    const mano = $('#mano');
+    mano.innerHTML = '';
+    let elSugerido = null;
+    e.manos[YO].forEach(c => {
+      const el = crearCarta(c);
+      el.disabled = !puedeTirar;
+      el.onclick = () => elegir({ tipo: 'carta', carta: c });
+      if (sugerida.tipo === 'carta' && sugerida.carta.id === c.id) elSugerido = el;
+      mano.appendChild(el);
+    });
+    const cantos = $('#cantos');
+    cantos.innerHTML = '';
+    permitidas.filter(a => a.tipo !== 'carta').forEach(a => {
+      const info = BOTON_CANTO[a.tipo];
+      const b = document.createElement('button');
+      b.className = 'canto canto-' + a.tipo;
+      b.setAttribute('aria-label', FRASES['yo-' + a.tipo]);
+      b.innerHTML = `<span>${info.icono}</span>` + (info.puntos ? `<span class="vale">${'<i></i>'.repeat(info.puntos)}</span>` : '');
+      b.onclick = () => elegir(a);
+      if (sugerida.tipo === a.tipo) elSugerido = b;
+      cantos.appendChild(b);
+    });
+    const marcar = () => elSugerido.classList.add('sugerida');
+    ayuda = () => { marcar(); Voz.decir(pista); };
+    if (guiado) { marcar(); Voz.decir(pista); } else if (puedeTirar) Voz.decir('te-toca');
+  });
+}
+
+// Cuenta en voz alta y muestra lo que pasó. Devuelve false si se salió del nivel.
+async function contar(eventos, e, vivo) {
+  for (const ev of eventos) {
+    const mio = ev.jugador === YO;
+    if (ev.tipo === 'carta') {
+      poner(mio ? 'yo' : 'zorro', ev.carta);
+      if (mio) {
+        const mano = $('#mano');
+        mano.innerHTML = '';
+        e.manos[YO].forEach(c => { const el = crearCarta(c); el.disabled = true; mano.appendChild(el); });
+      } else await Voz.decir('zorro-jugo', ev.carta.id);
+    } else if (ev.tipo === 'baza') {
+      pintarMarcadores(3, e.bazas.map(b => (b === YO ? 1 : b === ZORRO ? -1 : 0)));
+      if (ev.ganador !== Motor.PARDA) {
+        $('#hueco-yo .carta').classList.add(ev.ganador === YO ? 'gana' : 'pierde');
+        $('#hueco-zorro .carta').classList.add(ev.ganador === ZORRO ? 'gana' : 'pierde');
+      }
+      Voz.sonido(ev.ganador === YO ? 'bien' : 'casi');
+      await Voz.decir(ev.ganador === YO ? 'mano-tuya' : ev.ganador === ZORRO ? 'mano-zorro' : 'parda');
+      if (!vivo()) return false;
+      await espera(700);
+      poner('zorro', null);
+      poner('yo', null);
+    } else if (ev.tipo === 'canto') {
+      await Voz.decir((mio ? 'yo-' : 'zorro-') + ev.canto);
+    } else if (ev.tipo === 'respuesta') {
+      const frases = [(mio ? 'yo-' : 'zorro-') + (ev.quiero ? 'quiero' : 'no-quiero')];
+      if (ev.quiero) frases.push('vale-' + (e.truco.nivel + 1));
+      await Voz.decir(...frases);
+    } else if (ev.tipo === 'puntos') {
+      pintarTantos(e.puntos, e.meta);
+      Voz.sonido(mio ? 'bien' : 'casi');
+      await Voz.decir((mio ? 'ganaste-' : 'zorro-gano-') + ev.puntos);
+    } else if (ev.tipo === 'fin-partida') {
+      await Voz.decir(ev.ganador === YO ? 'partida-tuya' : 'partida-zorro');
+    }
+    if (!vivo()) return false;
+  }
+  return true;
+}
+
+async function nivel3() {
+  const id = ++partida;
+  const vivo = () => id === partida;
+  const EXCLUIR = ['envido', 'real-envido', 'mazo'];
+  const e = Motor.nuevaPartida({ meta: 6, mano: YO });
+  prepararJuego({ conMano: true, conZorro: true });
+  montarMesa();
+  pintarTantos(e.puntos, e.meta);
+  pintarMarcadores(3, []);
+  ayuda = () => Voz.decir('n3-intro');
+  await Voz.decir('n3-intro');
+  if (!vivo()) return;
+
+  while (e.fase !== 'fin-partida') {
+    const guiado = e.rondas < 2;
+    Motor.nuevaRonda(e, guiado ? repartoGuiado(e.rondas) : undefined);
+    pintarMarcadores(3, []);
+    poner('zorro', null);
+    poner('yo', null);
+    const mano = $('#mano');
+    mano.innerHTML = '';
+    e.manos[YO].forEach(c => { const el = crearCarta(c); el.disabled = true; mano.appendChild(el); });
+    if (e.rondas > 1) {
+      await Voz.decir('otra-ronda');
+      if (!vivo()) return;
+    }
+    while (e.fase === 'jugando') {
+      let accion;
+      if (Motor.actor(e) === ZORRO) {
+        await espera(700);
+        if (!vivo()) return;
+        accion = Bot.elegir(e, guiado ? () => 0 : Math.random, EXCLUIR);
+      } else {
+        accion = await pedirAccion(e, guiado, EXCLUIR);
+        if (!vivo()) return;
+      }
+      if (!(await contar(Motor.aplicar(e, accion), e, vivo))) return;
+    }
+    $('#mano').innerHTML = '';
+    $('#cantos').innerHTML = '';
+  }
+  terminar(3, e.ganador === YO ? 3 : e.puntos[YO] >= 3 ? 2 : 1);
 }
 
 // ---------- Fin de nivel ----------

@@ -3,9 +3,10 @@
 const Bot = (() => {
   const M = typeof module !== 'undefined' && module.exports ? require('./motor.js') : Motor;
 
-  function elegir(e, rng = Math.random) {
+  // excluir: tipos de acción que no se usan en este nivel (por ejemplo, el envido).
+  function elegir(e, rng = Math.random, excluir = []) {
     const j = M.actor(e);
-    const permitidas = M.acciones(e);
+    const permitidas = M.acciones(e).filter(a => !excluir.includes(a.tipo));
     const puede = tipo => permitidas.some(a => a.tipo === tipo);
     const cartas = e.manos[j].slice().sort((a, b) => a.f - b.f);
     const tantos = M.tantos(e.repartidas[j]);

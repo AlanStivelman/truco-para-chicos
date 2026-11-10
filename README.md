@@ -18,7 +18,7 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 |---|---|---|
 | 1 | Qué carta le gana a cuál | Listo |
 | 2 | Ganar la ronda (mejor de tres) contra el zorro | Listo |
-| 3 | El Truco | Pendiente |
+| 3 | El Truco: cantar, querer o no querer, a 6 puntos | Listo |
 | 4 | El Envido | Pendiente |
 | 5 | Partida completa a 15 | Pendiente |
 
@@ -45,4 +45,4 @@ npm test
 
 Prueban las reglas del motor y juegan 500 partidas completas entre dos bots.
 
-El motor y el bot todavía no están conectados a la pantalla: los niveles 3, 4 y 5 se van a construir sobre ellos.
+El nivel 3 ya usa el motor y el bot; los niveles 4 y 5 se construyen sobre lo mismo.
