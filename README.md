@@ -21,7 +21,7 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 |---|---|---|
 | 0 | Qué es el truco, los palos y la tabla de cartas | Listo |
 | 1 | Qué carta le gana a cuál | Listo |
-| 2 | Ganar la ronda (mejor de tres) contra el zorro | Listo |
+| 2 | Ganar la ronda (mejor de tres) contra Capi | Listo |
 | 3 | El Truco: cantar, querer o no querer, a 6 puntos | Listo |
 | 4 | El envido: práctica de cartas del mismo palo y partida a 9 | Listo |
 | 5 | Partida completa a 15 | Pendiente |
