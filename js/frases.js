@@ -60,6 +60,46 @@ const FRASES = {
   'partida-tuya': '¡Ganaste la partida!',
   'partida-zorro': 'Esta vez ganó el zorro. ¡La próxima le ganás!',
 
+  // Nivel 4: el envido
+  'n4-intro': 'Hoy aprendemos el envido. En el envido gana el que tiene más tantos. Para tener muchos tantos, hacen falta dos cartas con el mismo dibujito.',
+  'n4-toca-par': 'Tocá las dos cartas que tienen el mismo dibujito.',
+  'n4-no-par': 'Esas no tienen el mismo dibujito. Mirá bien los dibujitos.',
+  'n4-par-bien': '¡Muy bien! Tienen el mismo dibujito. Contamos los tantos:',
+  'figuras-cero': 'El diez, el once y el doce valen cero.',
+  'veinte': 'Veinte',
+  'mas': 'más',
+  'son': 'son',
+  'n4-partida': 'Ahora jugamos contra el zorro hasta nueve puntos. Si tenés muchos tantos, tocá el botón del más para cantar envido.',
+  'yo-envido': '¡Envido!',
+  'yo-real-envido': '¡Real envido!',
+  'zorro-envido': 'El zorro cantó envido.',
+  'zorro-real-envido': 'El zorro cantó real envido.',
+  'si-quiero-envido-2': 'Si decís quiero, el que tiene más tantos gana dos puntos.',
+  'si-quiero-envido-3': 'Si decís quiero, el que tiene más tantos gana tres puntos.',
+  'si-quiero-envido-4': 'Si decís quiero, el que tiene más tantos gana cuatro puntos.',
+  'si-quiero-envido-5': 'Si decís quiero, el que tiene más tantos gana cinco puntos.',
+  'si-quiero-envido-7': 'Si decís quiero, el que tiene más tantos gana siete puntos.',
+  'si-no-quiero-1': 'Si decís no quiero, el zorro gana un punto.',
+  'si-no-quiero-2': 'Si decís no quiero, el zorro gana dos puntos.',
+  'si-no-quiero-4': 'Si decís no quiero, el zorro gana cuatro puntos.',
+  'vos-tenes': 'Vos tenés',
+  'zorro-tiene': 'El zorro tiene',
+  'sin-par-yo': 'No tenés dos cartas con el mismo dibujito, así que vale tu carta más alta.',
+  'sin-par-zorro': 'El zorro no tiene dos cartas con el mismo dibujito, así que vale su carta más alta.',
+  'envido-tuyo': '¡Ganaste el envido!',
+  'envido-zorro': 'El envido lo ganó el zorro.',
+  'envido-empate': 'Empataron. Cuando empatan, gana el que empezó la ronda.',
+  'truco-espera': 'Ahora sí: el zorro había cantado truco. ¿Querés o no querés?',
+  'truco-espera-tuyo': 'Ahora el zorro tiene que contestar tu truco.',
+  'pista-envido': 'Tenés muchos tantos. ¡Tocá el botón del más y cantá envido!',
+  'pista-real-envido': 'Tenés muchísimos tantos. ¡Tocá el botón del más y subí a real envido!',
+  'pista-quiero-envido': 'Tenés muchos tantos. Tocá el pulgar para arriba y decí quiero.',
+  'pista-no-quiero-envido': 'Tenés pocos tantos. Mejor tocá el pulgar para abajo y decí no quiero.',
+  'ganaste-5': '¡Ganaste cinco puntos!',
+  'ganaste-7': '¡Ganaste siete puntos!',
+  'zorro-gano-5': 'El zorro ganó cinco puntos.',
+  'zorro-gano-7': 'El zorro ganó siete puntos.',
+
   // Final
   'estrellas-1': 'Ganaste una estrella.',
   'estrellas-2': '¡Ganaste dos estrellas!',
@@ -67,6 +107,9 @@ const FRASES = {
   'fin-bien': '¡Qué bien jugaste!',
   'fin-otra': '¿Jugamos otra vez?',
 };
+
+// Números de los tantos: 0 a 7 y 20 a 33. Ids 'num-<n>'.
+for (let n = 0; n <= 33; n++) if (n <= 7 || n >= 20) FRASES['num-' + n] = String(n);
 
 // Nombres de las 40 cartas: ids 'c-<numero>-<palo>'
 (() => {

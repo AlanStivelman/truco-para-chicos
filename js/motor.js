@@ -19,16 +19,22 @@ const Motor = (() => {
   const VALOR_ENVIDO = { 'envido': 2, 'real-envido': 3 };
 
   // Tantos para el envido: dos del mismo palo suman 20 más sus números; las figuras valen 0.
-  function tantos(cartas) {
-    const v = c => (c.n >= 10 ? 0 : c.n);
-    let mejor = Math.max(...cartas.map(v));
+  // Sin par, vale la carta más alta.
+  const valorEnvido = c => (c.n >= 10 ? 0 : c.n);
+  const sumaTantos = par => (par.length === 2 ? 20 : 0) + par.reduce((s, c) => s + valorEnvido(c), 0);
+
+  // Las cartas que forman los tantos: el mejor par del mismo palo, o la carta más alta.
+  function cartasTantos(cartas) {
+    let mejor = [cartas.reduce((a, b) => (valorEnvido(b) > valorEnvido(a) ? b : a))];
     for (let i = 0; i < cartas.length; i++) {
       for (let j = i + 1; j < cartas.length; j++) {
-        if (cartas[i].palo === cartas[j].palo) mejor = Math.max(mejor, 20 + v(cartas[i]) + v(cartas[j]));
+        const par = [cartas[i], cartas[j]];
+        if (cartas[i].palo === cartas[j].palo && sumaTantos(par) > sumaTantos(mejor)) mejor = par;
       }
     }
     return mejor;
   }
+  const tantos = cartas => sumaTantos(cartasTantos(cartas));
 
   // bazas: quién ganó cada una (0, 1 o PARDA). Devuelve el ganador de la ronda o null si sigue.
   function ganadorRonda(bazas, mano) {
@@ -67,7 +73,7 @@ const Motor = (() => {
     // nivel: 0 nada, 1 truco, 2 retruco, 3 vale cuatro (ya aceptado).
     // puede: quién puede subir la apuesta (null = cualquiera).
     e.truco = { nivel: 0, pendiente: null, puede: null };
-    e.envido = { cantos: [], pendiente: null, cerrado: false };
+    e.envido = { cantos: [], pendiente: null, cerrado: false, trucoEnEspera: null };
     e.fase = 'jugando';
     return e;
   }
@@ -135,7 +141,11 @@ const Motor = (() => {
     const t = accion.tipo;
 
     if (t === 'envido' || t === 'real-envido') {
-      e.truco.pendiente = null; // si había un truco sin contestar, queda para después
+      // "El envido está primero": un truco sin contestar queda en espera hasta resolver el envido.
+      if (e.truco.pendiente) {
+        e.envido.trucoEnEspera = e.truco.pendiente;
+        e.truco.pendiente = null;
+      }
       e.envido.cantos.push(t);
       e.envido.pendiente = { de: j };
       ev.push({ tipo: 'canto', jugador: j, canto: t });
@@ -150,13 +160,19 @@ const Motor = (() => {
         const pts = cantos.reduce((s, c) => s + VALOR_ENVIDO[c], 0);
         const tt = e.repartidas.map(tantos);
         const gana = tt[0] === tt[1] ? e.mano : (tt[0] > tt[1] ? 0 : 1);
-        ev.push({ tipo: 'envido', tantos: tt, ganador: gana });
+        ev.push({ tipo: 'envido', tantos: tt, cartas: e.repartidas.map(cartasTantos), ganador: gana });
         sumar(gana, pts, 'envido');
       } else {
         const pts = cantos.length === 1 ? 1 : cantos.slice(0, -1).reduce((s, c) => s + VALOR_ENVIDO[c], 0);
         sumar(quienCanto, pts, 'envido-no-querido');
       }
+      const espera = e.envido.trucoEnEspera;
+      e.envido.trucoEnEspera = null;
       if (e.fase === 'fin-partida') ev.push({ tipo: 'fin-partida', ganador: e.ganador });
+      else if (espera) {
+        e.truco.pendiente = espera;
+        ev.push({ tipo: 'truco-en-espera', jugador: espera.de, canto: CANTOS_TRUCO[espera.nivel - 1] });
+      }
 
     } else if (CANTOS_TRUCO.includes(t)) {
       // Subir como respuesta acepta el canto anterior.
@@ -207,7 +223,7 @@ const Motor = (() => {
     return ev;
   }
 
-  return { PARDA, CANTOS_TRUCO, tantos, ganadorRonda, nuevaPartida, nuevaRonda, actor, acciones, aplicar };
+  return { PARDA, CANTOS_TRUCO, VALOR_ENVIDO, tantos, cartasTantos, ganadorRonda, nuevaPartida, nuevaRonda, actor, acciones, aplicar };
 })();
 
 if (typeof module !== 'undefined') module.exports = Motor;

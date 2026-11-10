@@ -206,8 +206,28 @@ body.hablando .carpincho svg { animation: hablar 0.7s ease-in-out infinite; }
   justify-content: center;
 }
 
+/* ---------- Envido ---------- */
+.carta.elegida { transform: translateY(-8%); border-color: var(--celeste-fuerte); box-shadow: 0 0 0 0.04em var(--celeste); }
+.carta.brilla { transform: scale(1.04); border-color: var(--sol); box-shadow: 0 0 0 0.05em var(--sol); }
+.practica .mesa { flex-wrap: wrap; align-content: center; gap: 3vmin; }
+.practica .mesa .carta { --cw: min(28vw, 40vh); }
+.numero-grande {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: min(14vmin, 110px);
+  line-height: 1;
+  min-height: 1em;
+  color: var(--celeste-fuerte);
+}
+.muestra { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5vmin; }
+.muestra .quien { flex-basis: 100%; display: flex; justify-content: center; }
+.muestra .quien svg { width: clamp(34px, 8vmin, 64px); }
+.mesa .muestra .carta { --cw: min(12vw, 15vh); }
+.canto.canto-envido { background: var(--celeste); box-shadow: 0 0.9vmin 0 var(--celeste-fuerte); }
+.canto.canto-real-envido { background: #B9A6E0; box-shadow: 0 0.9vmin 0 #8C76C2; }
+
 /* ---------- Puntos y botones de canto ---------- */
-.tantos { display: flex; gap: 0.8vmin; min-height: clamp(8px, 2vmin, 16px); }
+.tantos { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8vmin; max-width: min(22vw, 19vh); min-height: clamp(8px, 2vmin, 16px); }
 .tantos i {
   width: clamp(8px, 2vmin, 16px);
   height: clamp(8px, 2vmin, 16px);
@@ -244,6 +264,8 @@ body.hablando .carpincho svg { animation: hablar 0.7s ease-in-out infinite; }
 @media (orientation: portrait) {
   .mesa { flex-wrap: wrap; align-content: center; }
   .cantos { flex-direction: row; width: 100%; min-height: clamp(84px, 20vmin, 160px); }
+  .muestra .quien { flex-basis: auto; }
+  .mesa .muestra .carta { --cw: min(20vw, 12vh); }
   .mano { gap: 1.5vmin; min-height: calc(min(29vw, 25vh) * 1.45); }
   .mano .carta { --cw: min(29vw, 25vh); }
   .mesa .carta, .hueco { --cw: min(36vw, 22vh); }

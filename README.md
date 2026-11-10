@@ -19,12 +19,18 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 | 1 | Qué carta le gana a cuál | Listo |
 | 2 | Ganar la ronda (mejor de tres) contra el zorro | Listo |
 | 3 | El Truco: cantar, querer o no querer, a 6 puntos | Listo |
-| 4 | El Envido | Pendiente |
+| 4 | El envido: práctica de cartas del mismo palo y partida a 9 | Listo |
 | 5 | Partida completa a 15 | Pendiente |
 
 ## Voz
 
 Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la voz en español del dispositivo. Para usar una grabación propia, guardarla como `audio/<id>.mp3` y agregar el id a `audio/manifest.json`.
+
+## Documentos para trabajar en el proyecto
+
+- `CONTEXT.md`: para quién es, decisiones y reglas confirmadas.
+- `STATE.md`: en qué punto está.
+- `AGENTS.md`: cómo trabajar, incluida la revisión obligatoria con Fable en cambios grandes.
 
 ## Estructura
 
@@ -45,4 +51,4 @@ npm test
 
 Prueban las reglas del motor y juegan 500 partidas completas entre dos bots.
 
-El nivel 3 ya usa el motor y el bot; los niveles 4 y 5 se construyen sobre lo mismo.
+Los niveles 3 y 4 usan el motor y el bot; el nivel 5 se construye sobre lo mismo.

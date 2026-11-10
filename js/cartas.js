@@ -10,6 +10,7 @@ function crearCarta(c, { conFuerza = true } = {}) {
   const b = document.createElement('button');
   b.className = `carta palo-${c.palo}` + (conFuerza ? '' : ' sin-fuerza');
   b.setAttribute('aria-label', FRASES[c.id]);
+  b.dataset.id = c.id;
   b.innerHTML =
     `<span class="num">${c.n}</span>` +
     `<svg class="palo" viewBox="0 0 100 100" aria-hidden="true">${DIBUJO_PALO[c.palo]}</svg>` +

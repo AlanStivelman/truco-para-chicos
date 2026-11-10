@@ -146,16 +146,96 @@ test('el envido solo se puede cantar en la primera baza y antes de tirar', () =>
   assert.ok(!tipos(e).includes('envido'));  // ya pasó la primera baza
 });
 
-test('el envido está primero: contesta al truco y el truco queda para después', () => {
-  const e = ronda([c(7, 'espada'), c(6, 'espada'), c(4, 'copa')], [c(3, 'oro'), c(5, 'oro'), c(6, 'copa')]);
+const manosEnvido = () => [[c(7, 'espada'), c(6, 'espada'), c(4, 'copa')], [c(3, 'oro'), c(5, 'oro'), c(6, 'copa')]];
+
+test('el envido está primero: después del envido querido, el truco sigue esperando respuesta', () => {
+  const e = ronda(...manosEnvido());
   jugar(e, 'truco');
   assert.ok(tipos(e).includes('envido'));
-  jugar(e, 'envido', 'quiero');
+  jugar(e, 'envido');
+  assert.equal(Motor.actor(e), 0); // contesta el envido el que cantó truco
+  const ev = jugar(e, 'quiero');
   assert.deepEqual(e.puntos, [2, 0]);
-  assert.equal(e.truco.nivel, 0);
-  assert.equal(e.truco.pendiente, null);
-  assert.ok(tipos(e).includes('truco'));
-  assert.ok(!tipos(e).includes('envido'));
+  assert.deepEqual(ev.at(-1), { tipo: 'truco-en-espera', jugador: 0, canto: 'truco' });
+  assert.equal(Motor.actor(e), 1); // vuelve a contestar el truco quien lo recibió
+  assert.deepEqual(tipos(e).sort(), ['no-quiero', 'quiero', 'retruco']);
+});
+
+test('el truco sigue esperando también después de un envido no querido', () => {
+  const e = ronda(...manosEnvido());
+  jugar(e, 'truco', 'envido', 'no-quiero');
+  assert.deepEqual(e.puntos, [0, 1]);
+  assert.equal(Motor.actor(e), 1);
+  assert.equal(e.truco.pendiente.nivel, 1);
+});
+
+test('el truco sigue esperando aunque el envido se suba', () => {
+  let e = ronda(...manosEnvido());
+  jugar(e, 'truco', 'envido', 'real-envido', 'quiero');
+  assert.deepEqual(e.puntos, [5, 0]);
+  assert.equal(e.truco.pendiente.de, 0);
+  assert.equal(Motor.actor(e), 1);
+  e = ronda(...manosEnvido());
+  jugar(e, 'truco', 'envido', 'envido', 'quiero');
+  assert.deepEqual(e.puntos, [4, 0]);
+  assert.equal(e.truco.pendiente.de, 0);
+});
+
+test('truco, envido, quiero y retruco como respuesta: la ronda vale 3', () => {
+  const e = ronda(...manosEnvido());
+  jugar(e, 'truco', 'envido', 'quiero', 'retruco');
+  assert.equal(e.truco.nivel, 1);
+  assert.equal(Motor.actor(e), 0);
+  const ev = jugar(e, 'quiero', c(7, 'espada'), c(3, 'oro'), c(6, 'espada'), c(5, 'oro'));
+  assert.ok(ev.some(x => x.tipo === 'puntos' && x.motivo === 'ronda' && x.jugador === 0 && x.puntos === 3));
+  assert.deepEqual(e.puntos, [5, 0]);
+});
+
+test('truco, envido, quiero y no quiero al truco: envido más un punto', () => {
+  const e = ronda(...manosEnvido());
+  const ev = jugar(e, 'truco', 'envido', 'quiero', 'no-quiero');
+  assert.deepEqual(e.puntos, [3, 0]);
+  assert.ok(ev.some(x => x.tipo === 'fin-ronda' && x.ganador === 0));
+});
+
+test('el envido que termina la partida no deja un truco en espera', () => {
+  for (const respuesta of ['quiero', 'no-quiero']) {
+    const e = Motor.nuevaPartida({ meta: 9 });
+    e.puntos = [8, 8];
+    Motor.nuevaRonda(e, manosEnvido());
+    const quien = respuesta === 'quiero' ? 0 : 1;
+    const ev = jugar(e, 'truco', 'envido', respuesta);
+    assert.equal(e.fase, 'fin-partida');
+    assert.equal(e.ganador, quien);
+    assert.equal(Motor.actor(e), null);
+    assert.ok(!ev.some(x => x.tipo === 'truco-en-espera'));
+    assert.deepEqual(Motor.acciones(e), []);
+  }
+});
+
+test('las cartas de los tantos', () => {
+  const ids = cs => cs.map(x => x.id).sort();
+  assert.deepEqual(ids(Motor.cartasTantos([c(7, 'espada'), c(6, 'espada'), c(1, 'oro')])), ['c-6-espada', 'c-7-espada']);
+  assert.deepEqual(ids(Motor.cartasTantos([c(2, 'oro'), c(5, 'oro'), c(7, 'oro')])), ['c-5-oro', 'c-7-oro']);
+  assert.equal(Motor.cartasTantos([c(12, 'copa'), c(11, 'copa'), c(5, 'oro')]).length, 2);
+  assert.deepEqual(ids(Motor.cartasTantos([c(7, 'copa'), c(5, 'oro'), c(12, 'basto')])), ['c-7-copa']);
+  assert.equal(Motor.cartasTantos([c(12, 'copa'), c(11, 'oro'), c(10, 'basto')]).length, 1);
+});
+
+test('el evento del envido trae las cartas coherentes con los tantos', () => {
+  const e = ronda(...manosEnvido());
+  const ev = jugar(e, 'envido', 'quiero').find(x => x.tipo === 'envido');
+  assert.deepEqual(ev.tantos, [33, 28]);
+  ev.cartas.forEach((cs, k) => assert.equal(Motor.tantos(cs), ev.tantos[k]));
+});
+
+test('con el truco restaurado el bot no vuelve a cantar envido', () => {
+  const e = ronda(...manosEnvido());
+  jugar(e, 'truco', 'envido', 'quiero');
+  for (let i = 0; i < 20; i++) {
+    const a = Bot.elegir(e, Math.random, ['mazo']);
+    assert.ok(['quiero', 'no-quiero', 'retruco'].includes(a.tipo), a.tipo);
+  }
 });
 
 test('con truco aceptado ya no hay envido', () => {
@@ -221,6 +301,24 @@ test('500 partidas completas entre dos bots terminan bien', () => {
   }
   // Los dos bots juegan igual: ninguno debería ganar casi siempre.
   assert.ok(victorias[0] > 150 && victorias[1] > 150, `victorias: ${victorias}`);
+});
+
+test('300 partidas con la configuración del nivel 4 (a 9, sin mazo)', () => {
+  const rng = azar(44);
+  for (let p = 0; p < 300; p++) {
+    const e = Motor.nuevaPartida({ meta: 9, rng, mano: p % 2 });
+    while (e.fase !== 'fin-partida') {
+      Motor.nuevaRonda(e);
+      let pasos = 0;
+      while (e.fase === 'jugando') {
+        assert.ok(++pasos < 40);
+        const a = Bot.elegir(e, rng, ['mazo']);
+        assert.notEqual(a.tipo, 'mazo');
+        Motor.aplicar(e, a);
+      }
+    }
+    assert.equal(e.puntos[e.ganador], 9);
+  }
 });
 
 test('el bot respeta las acciones excluidas del nivel', () => {

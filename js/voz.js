@@ -5,6 +5,7 @@ const Voz = (() => {
   const tts = 'speechSynthesis' in window ? window.speechSynthesis : null;
   let turno = 0;
   let audioActual = null;
+  let finAudio = null; // termina la promesa del audio en curso si se lo corta
   let grabadas = new Set();
   let alHablar = () => {};
   let ctx = null;
@@ -24,6 +25,7 @@ const Voz = (() => {
     turno++;
     if (tts) tts.cancel();
     if (audioActual) { audioActual.pause(); audioActual = null; }
+    if (finAudio) { const f = finAudio; finAudio = null; f(); }
   }
 
   function leer(texto) {
@@ -46,8 +48,11 @@ const Voz = (() => {
     return new Promise(fin => {
       const a = new Audio(`audio/${id}.mp3`);
       audioActual = a;
-      a.onended = a.onerror = fin;
-      a.play().catch(fin);
+      // pause() no dispara onended: por eso parar() llama a finAudio.
+      const listo = () => { if (finAudio === listo) finAudio = null; fin(); };
+      finAudio = listo;
+      a.onended = a.onerror = listo;
+      a.play().catch(listo);
     });
   }
 
