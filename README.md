@@ -30,6 +30,19 @@ Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la vo
 
 - `index.html`: las cuatro pantallas (inicio, niveles, juego, fin).
 - `css/style.css`: estilos.
-- `js/cartas.js`: mazo, fuerza de cada carta y dibujos.
+- `js/mazo.js`: mazo y fuerza de cada carta.
+- `js/motor.js`: reglas del truco (bazas, truco, retruco, vale cuatro, envido, real envido, puntos a 15). Sin pantalla.
+- `js/bot.js`: el rival de la compu.
+- `js/cartas.js`: dibujos de cartas y personajes.
 - `js/voz.js`: voz y sonidos.
 - `js/app.js`: niveles y navegación.
+
+## Pruebas
+
+```bash
+npm test
+```
+
+Prueban las reglas del motor y juegan 500 partidas completas entre dos bots.
+
+El motor y el bot todavía no están conectados a la pantalla: los niveles 3, 4 y 5 se van a construir sobre ellos.

@@ -1,0 +1,7 @@
+{
+  "name": "truco-para-chicos",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}

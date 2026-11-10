@@ -242,7 +242,7 @@ async function nivel2() {
       if (!vivo()) return;
       poner('zorro', null);
       poner('yo', null);
-      if (g !== 0) turno = g;
+      turno = g !== 0 ? g : mano; // después de una parda sale el que es mano
     }
 
     $('#mano').innerHTML = '';

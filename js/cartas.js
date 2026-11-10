@@ -1,28 +1,4 @@
-// Mazo de 40 cartas españolas, su fuerza en el truco y cómo se dibujan.
-const PALOS = ['espada', 'basto', 'oro', 'copa'];
-const NUMEROS = [1, 2, 3, 4, 5, 6, 7, 10, 11, 12];
-const FUERZA_MAX = 14;
-
-// Fuerza: 14 es la carta que le gana a todas, 1 la más bajita.
-function fuerza(n, palo) {
-  if (n === 1 && palo === 'espada') return 14;
-  if (n === 1 && palo === 'basto') return 13;
-  if (n === 7 && palo === 'espada') return 12;
-  if (n === 7 && palo === 'oro') return 11;
-  return { 3: 10, 2: 9, 1: 8, 12: 7, 11: 6, 10: 5, 7: 4, 6: 3, 5: 2, 4: 1 }[n];
-}
-
-const MAZO = PALOS.flatMap(palo => NUMEROS.map(n => ({ n, palo, f: fuerza(n, palo), id: `c-${n}-${palo}` })));
-
-function barajar(lista) {
-  const a = lista.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
+// Cómo se dibujan las cartas y los personajes.
 const DIBUJO_PALO = {
   oro: '<circle cx="50" cy="50" r="40" fill="#F2B632"/><circle cx="50" cy="50" r="27" fill="none" stroke="#D99A1C" stroke-width="5"/><circle cx="50" cy="50" r="9" fill="#D99A1C"/>',
   copa: '<path d="M24 16 H76 Q76 56 50 60 Q24 56 24 16Z" fill="#E0564F"/><rect x="45" y="58" width="10" height="20" fill="#C2423C"/><rect x="30" y="76" width="40" height="11" rx="5.5" fill="#C2423C"/>',
