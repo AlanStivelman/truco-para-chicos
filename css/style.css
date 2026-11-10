@@ -1,30 +1,56 @@
+/* Estética: design system "Truco Recreo" (https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa).
+   Tipo figurita: colores plenos, contorno tinta grueso y sombra dura sin desenfoque. */
+
+@font-face {
+  font-family: 'Fredoka';
+  src: url('../fonts/fredoka-latin.woff2') format('woff2');
+  font-weight: 300 700;
+  font-display: swap;
+}
+
 :root {
-  --crema: #FBF3E1;
-  --crema-oscuro: #EFE4C8;
-  --celeste: #8CC8EA;
-  --celeste-claro: #D6ECF8;
-  --celeste-fuerte: #3F93C4;
-  --sol: #F6C445;
-  --sol-fuerte: #D99A1C;
-  --naranja: #F09A4F;
-  --tinta: #4A3B2C;
+  /* Colores: cada uno significa una sola cosa */
+  --cielo: #9ED8F5;          /* fondo */
+  --pasto: #7BCB5A;          /* loma (decorado) y "quiero" */
+  --mesa: #3D7DD8;           /* tablero */
+  --mesa-hueco: rgba(29, 53, 87, 0.22);
   --blanco: #FFFFFF;
-  --btn: clamp(56px, 14vmin, 112px);
+  --tinta: #1D3557;          /* contornos, sombras, texto */
+  --sol: #FFC93C;            /* acción principal, "te toca", sugerida */
+  --sol-claro: #FFE9A6;
+  --tomate: #E8502E;         /* truco */
+  --uva: #9466D6;            /* envido */
+  --apagado: #DCEAF2;        /* bloqueado o no disponible */
+  --apagado-icono: #5C6F8C;
+  --hueco-borde: rgba(255, 255, 255, 0.6);
+  --capi: #B07A4F;
+
+  /* Contornos y sombras duras */
+  --borde-fino: 4px;
+  --borde: 5px;
+  --borde-grueso: 6px;
+  --sombra-s: 4px 4px 0 var(--tinta);
+  --sombra: 6px 6px 0 var(--tinta);
+  --sombra-l: 8px 8px 0 var(--tinta);
+
+  /* Nada que se toque mide menos de 66 px */
+  --btn: clamp(66px, 9vmin, 80px);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; margin: 0; }
 body {
-  background: var(--crema);
+  background: var(--cielo);
   color: var(--tinta);
-  font-family: ui-rounded, "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", system-ui, sans-serif;
-  font-weight: 800;
+  font-family: 'Fredoka', ui-rounded, 'Arial Rounded MT Bold', 'Nunito', 'Trebuchet MS', system-ui, sans-serif;
+  font-weight: 600;
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
 }
 button { font: inherit; color: inherit; border: 0; padding: 0; background: none; cursor: pointer; }
+button:focus-visible { outline: 4px solid var(--tinta); outline-offset: 4px; }
 
 .pantalla {
   position: fixed;
@@ -32,295 +58,532 @@ button { font: inherit; color: inherit; border: 0; padding: 0; background: none;
   display: none;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
   padding: max(2vmin, env(safe-area-inset-top)) max(3vmin, env(safe-area-inset-right)) max(2vmin, env(safe-area-inset-bottom)) max(3vmin, env(safe-area-inset-left));
 }
 .pantalla.activa { display: flex; }
+.pantalla > * { position: relative; z-index: 1; }
 
-/* ---------- Botones ---------- */
+/* La loma verde entra por el borde de abajo: nunca un corte recto. */
+.pantalla > .loma {
+  position: absolute;
+  z-index: 0;
+  left: -15%;
+  right: -15%;
+  bottom: -38vmin;
+  height: 62vmin;
+  border-radius: 50%;
+  background: var(--pasto);
+  border: var(--borde-grueso) solid var(--tinta);
+}
+
+/* ---------- Barra de arriba: igual en todas las pantallas ---------- */
+.barra {
+  width: 100%;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2vmin;
+  z-index: 2;
+}
+
+/* ---------- Botones redondos ---------- */
 .btn-redondo {
   width: var(--btn);
   height: var(--btn);
   flex: none;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  background: var(--celeste);
-  color: var(--blanco);
-  box-shadow: 0 0.9vmin 0 var(--celeste-fuerte);
-  transition: transform 0.12s, box-shadow 0.12s;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: var(--borde) solid var(--tinta);
+  box-shadow: var(--sombra-s);
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.btn-redondo:active { transform: translateY(0.6vmin); box-shadow: 0 0.3vmin 0 var(--celeste-fuerte); }
-.btn-redondo svg { width: 62%; height: 62%; display: block; margin: auto; }
-.btn-redondo.sol { background: var(--sol); box-shadow: 0 0.9vmin 0 var(--sol-fuerte); }
-.btn-redondo.sol:active { box-shadow: 0 0.3vmin 0 var(--sol-fuerte); }
-.btn-redondo.grande { --btn: clamp(84px, 22vmin, 170px); }
-.btn-redondo.enorme { --btn: clamp(120px, 34vmin, 260px); background: var(--sol); box-shadow: 0 1.4vmin 0 var(--sol-fuerte); }
+.btn-redondo:active { transform: translate(4px, 4px); box-shadow: 0 0 0 var(--tinta); }
+.btn-redondo .icono { width: 52%; height: 52%; display: block; }
+.btn-redondo.sol { background: var(--sol); }
+.btn-redondo.grande { --btn: clamp(96px, 18vmin, 150px); border-width: var(--borde-grueso); box-shadow: var(--sombra); }
+.btn-redondo.enorme { --btn: clamp(110px, 22vmin, 170px); border-width: var(--borde-grueso); box-shadow: var(--sombra-l); }
+.btn-redondo.grande:active, .btn-redondo.enorme:active { transform: translate(6px, 6px); box-shadow: 0 0 0 var(--tinta); }
 
-/* ---------- Personajes ---------- */
-.carpincho, .zorro { display: block; flex: none; width: var(--btn); height: var(--btn); }
-.carpincho svg, .zorro svg, .quien svg { width: 100%; height: 100%; display: block; }
-.carpincho.grande { width: min(46vmin, 300px); height: min(46vmin, 300px); }
-.carpincho.mediano { width: min(30vmin, 200px); height: min(30vmin, 200px); }
-.carpincho.guia { border-radius: 50%; background: var(--celeste-claro); padding: 0.6vmin; }
-body.hablando .carpincho svg { animation: hablar 0.7s ease-in-out infinite; }
-@keyframes hablar { 50% { transform: translateY(-4%) rotate(-3deg); } }
+.con-etiqueta { display: flex; flex-direction: column; align-items: center; gap: 1.6vmin; }
+.etiqueta, .pastilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.15em 0.7em;
+  border-radius: 999px;
+  background: var(--blanco);
+  border: var(--borde-fino) solid var(--tinta);
+  font-weight: 700;
+  font-size: clamp(18px, 3vmin, 26px);
+  line-height: 1.2;
+}
+.pastilla { font-size: clamp(22px, 4vmin, 32px); box-shadow: var(--sombra-s); }
+.pastilla .estrella { width: 1.1em; height: 1.1em; }
+
+/* ---------- Capi ---------- */
+.capi svg, .quien svg { width: 100%; height: 100%; display: block; }
+/* Capi se apoya en una lomita propia: nunca se ve el corte recto del dibujo. */
+.capi { position: relative; }
+.capi::after {
+  content: '';
+  position: absolute;
+  left: -14%;
+  right: -14%;
+  bottom: -7%;
+  height: 20%;
+  border-radius: 50%;
+  background: var(--pasto);
+  border: var(--borde-grueso) solid var(--tinta);
+}
+.capi.grande { width: min(42vmin, 340px); height: min(42vmin, 340px); }
+.capi.mediano { width: min(32vmin, 240px); height: min(32vmin, 240px); }
+body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0.7s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes hablar { 50% { transform: translateY(-3%) rotate(-2deg); } }
+
+.globo {
+  margin: 0;
+  padding: 0.45em 0.9em;
+  background: var(--blanco);
+  border: var(--borde) solid var(--tinta);
+  border-radius: 24px;
+  box-shadow: var(--sombra);
+  font-weight: 700;
+  font-size: clamp(22px, 4vmin, 34px);
+  line-height: 1.1;
+  text-align: center;
+}
 
 /* ---------- Inicio ---------- */
-#p-inicio { justify-content: center; gap: 6vmin; }
-
-/* ---------- Barra de arriba ---------- */
-.barra { width: 100%; display: flex; align-items: center; gap: 3vmin; flex: none; }
-.marcadores { flex: 1; display: flex; justify-content: center; gap: 1.6vmin; }
-.marcadores i {
-  width: clamp(16px, 4.4vmin, 36px);
-  height: clamp(16px, 4.4vmin, 36px);
-  border-radius: 50%;
-  background: var(--crema-oscuro);
-  transition: background 0.3s;
-}
-.marcadores i.mio { background: var(--sol); }
-.marcadores i.suyo { background: var(--naranja); opacity: 0.55; }
-.marcadores i.parda { background: var(--celeste); }
-
-/* ---------- Niveles ---------- */
-.niveles {
+.inicio-cuerpo {
   flex: 1;
   width: 100%;
+  min-height: 0;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  align-content: center;
   justify-content: center;
-  gap: 3.5vmin;
+  gap: 5vmin;
 }
-.nivel {
-  --lado: min(27vw, 36vh, 250px);
-  width: var(--lado);
-  height: var(--lado);
-  border-radius: 18%;
-  background: var(--blanco);
-  box-shadow: 0 1vmin 0 var(--crema-oscuro);
+.inicio-capi { display: flex; flex-direction: column; align-items: center; gap: 2vmin; }
+.inicio-derecha { display: flex; flex-direction: column; align-items: center; gap: 4vmin; }
+.titulo {
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  position: relative;
-  transition: transform 0.12s;
+  font-weight: 700;
+  font-size: clamp(64px, 17vmin, 160px);
+  line-height: 0.9;
+  color: var(--blanco);
+  text-shadow:
+    5px 0 0 var(--tinta), -5px 0 0 var(--tinta), 0 5px 0 var(--tinta), 0 -5px 0 var(--tinta),
+    4px 4px 0 var(--tinta), -4px -4px 0 var(--tinta), 4px -4px 0 var(--tinta), -4px 4px 0 var(--tinta),
+    10px 10px 0 var(--tinta);
 }
-.nivel:active { transform: translateY(0.6vmin); }
+.para-chicos {
+  margin-top: 0.25em;
+  padding: 0.08em 0.6em;
+  font-size: 0.28em;
+  line-height: 1.2;
+  color: var(--tinta);
+  text-shadow: none;
+  background: var(--blanco);
+  border: var(--borde) solid var(--tinta);
+  border-radius: 999px;
+  box-shadow: var(--sombra-s);
+  transform: rotate(-3deg);
+}
+.inicio-botones { display: flex; gap: 5vmin; align-items: flex-start; }
+
+/* ---------- Niveles: un camino de paradas ---------- */
+.camino-caja { flex: 1; width: 100%; min-height: 0; }
+.camino { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.camino path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.camino-borde { stroke: var(--tinta); stroke-width: 30; }
+.camino-calle { stroke: var(--blanco); stroke-width: 18; }
+.camino-hecho { display: none; }
+.niveles {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: center;
+  justify-items: center;
+  padding: 7vmin 1vmin 12vmin;
+}
+.nivel {
+  --lado: clamp(84px, 14vmin, 140px);
+  width: var(--lado);
+  height: var(--lado);
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: var(--borde-grueso) solid var(--tinta);
+  box-shadow: var(--sombra);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.niveles .nivel:nth-child(odd) { align-self: end; }
+.niveles .nivel:nth-child(even) { align-self: start; }
+.nivel:active { transform: translate(5px, 5px); box-shadow: 0 0 0 var(--tinta); }
+.nivel-icono { display: grid; place-items: center; width: 54%; height: 54%; }
+.nivel-icono .icono { width: 100%; height: 100%; }
 .nivel-num {
   position: absolute;
-  top: 6%;
-  left: 9%;
+  top: -10%;
+  left: -10%;
+  width: 36%;
+  height: 36%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: var(--borde-fino) solid var(--tinta);
   font-size: calc(var(--lado) * 0.2);
-  color: var(--celeste-fuerte);
+  font-weight: 700;
   line-height: 1;
 }
-.nivel-icono { font-size: calc(var(--lado) * 0.42); line-height: 1.1; }
-.nivel-estrellas { font-size: calc(var(--lado) * 0.15); letter-spacing: 0.08em; line-height: 1; }
-.nivel-estrellas i, .estrellas i { font-style: normal; color: var(--crema-oscuro); }
-.nivel-estrellas i.si, .estrellas i.si { color: var(--sol); }
-.nivel.cerrado { background: var(--crema-oscuro); box-shadow: none; }
-.nivel.cerrado .nivel-icono, .nivel.pronto .nivel-icono { opacity: 0.55; }
-.nivel.cerrado .nivel-num { color: #B9AC8E; }
-.nivel.cerrado .nivel-estrellas, .nivel.pronto .nivel-estrellas { visibility: hidden; }
-@media (orientation: portrait) {
-  .nivel { --lado: min(40vw, 24vh, 250px); }
+.nivel-candado {
+  position: absolute;
+  right: -8%;
+  bottom: -8%;
+  width: 36%;
+  height: 36%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--tinta);
+  border: var(--borde-fino) solid var(--tinta);
 }
+.nivel-candado .icono { width: 58%; height: 58%; }
+.nivel-estrellas {
+  position: absolute;
+  top: calc(100% + 1.2vmin);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--blanco);
+  border: var(--borde-fino) solid var(--tinta);
+}
+.nivel-estrellas .estrella { width: calc(var(--lado) * 0.28); height: calc(var(--lado) * 0.28); }
+.estrella polygon { fill: var(--blanco); stroke: var(--tinta); }
+.estrella.si polygon { fill: var(--sol); }
+.nivel.actual { --lado: clamp(100px, 17vmin, 170px); background: var(--sol); color: var(--tinta); box-shadow: var(--sombra-l); }
+.nivel.cerrado, .nivel.pronto { background: var(--apagado); color: var(--apagado-icono); }
+.nivel.cerrado .nivel-estrellas, .nivel.pronto .nivel-estrellas { visibility: hidden; }
 
-/* ---------- Cartas ---------- */
+/* ---------- Mesa ---------- */
+.mesa {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  margin: 2vmin 0 calc(3vmin + 14px);
+  padding: 2.5vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4vmin;
+  background-color: var(--mesa);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 3px, transparent 3.5px);
+  background-size: 34px 34px;
+  border: var(--borde-grueso) solid var(--tinta);
+  border-radius: clamp(24px, 5vmin, 48px);
+  box-shadow: var(--sombra-l);
+}
+.mano { flex: none; width: 100%; display: flex; justify-content: center; gap: 2.5vmin; padding-bottom: 14px; min-height: calc(min(24vw, 21vh) * 1.534 + 14px); }
+.mano .carta { --cw: min(24vw, 21vh); }
+.mesa .carta { --cw: min(19vw, 17vh); }
+.duelo .mano { display: none; }
+.duelo .mesa { gap: 6vmin; }
+.duelo .mesa .carta { --cw: min(34vw, 40vh); }
+
+/* Marcadores de bazas (o de aciertos), en una pastilla blanca */
+.marcadores {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4vmin;
+  padding: 1vmin 2vmin;
+  background: var(--blanco);
+  border: var(--borde) solid var(--tinta);
+  border-radius: 999px;
+  box-shadow: var(--sombra-s);
+}
+.marcadores:empty { visibility: hidden; }
+.marcadores i {
+  width: clamp(18px, 3.6vmin, 30px);
+  height: clamp(18px, 3.6vmin, 30px);
+  border-radius: 50%;
+  background: var(--apagado);
+  border: var(--borde-fino) solid var(--tinta);
+  transition: background 0.3s;
+}
+.marcadores i.mio { background: var(--sol); }
+.marcadores i.suyo { background: var(--capi); }
+.marcadores i.parda { background: var(--blanco); }
+.marcadores .listo { --btn: clamp(66px, 9vmin, 80px); }
+
+/* ---------- Cartas: la baraja española ilustrada ---------- */
 .carta {
   --cw: 100px;
   width: var(--cw);
-  height: calc(var(--cw) * 1.45);
+  height: calc(var(--cw) * 1.534);
   font-size: var(--cw);
   flex: none;
   position: relative;
   background: var(--blanco);
-  border-radius: 0.1em;
-  border: 0.025em solid var(--crema-oscuro);
-  box-shadow: 0 0.035em 0 var(--crema-oscuro);
+  border-radius: 0.07em;
+  box-shadow: 0 0.03em 0.08em rgba(20, 16, 12, 0.3);
   transition: transform 0.35s ease, opacity 0.35s ease, box-shadow 0.35s ease;
 }
-.carta .num {
+.naipe {
   position: absolute;
-  top: 0.05em;
-  left: 0.1em;
-  font-size: 0.4em;
-  line-height: 1;
+  inset: 0;
+  border-radius: inherit;
+  background: url('../img/baraja-espanola.webp') no-repeat;
+  background-size: 1200% 500%;
 }
-.carta .palo { position: absolute; left: 21%; top: 34%; width: 58%; height: auto; }
+/* La barrita de fuerza: llena es la más fuerte. Se apoya sobre el borde de abajo. */
 .carta .fuerza {
   position: absolute;
-  left: 0.1em;
-  right: 0.1em;
-  bottom: 0.09em;
+  left: 0.12em;
+  right: 0.12em;
+  bottom: 0.035em;
   height: 0.085em;
-  border-radius: 0.05em;
-  background: var(--crema-oscuro);
+  border-radius: 1em;
+  background: var(--blanco);
+  border: 0.025em solid var(--tinta);
   overflow: hidden;
   transition: opacity 0.4s;
 }
-.carta .fuerza i { display: block; height: 100%; border-radius: 0.05em; background: var(--sol); }
+.carta .fuerza i { display: block; height: 100%; background: var(--sol); }
 .carta.sin-fuerza .fuerza { opacity: 0; }
-.palo-oro .num { color: #C98A10; }
-.palo-copa .num { color: #C2423C; }
-.palo-espada .num { color: #3E6DB0; }
-.palo-basto .num { color: #468550; }
 .carta:not(:disabled):active { transform: scale(0.96); }
-.carta.gana { transform: scale(1.06); box-shadow: 0 0 0 0.05em var(--sol); border-color: var(--sol); }
-.carta.pierde { opacity: 0.4; transform: scale(0.94); }
-.carta.sugerida { border-color: var(--sol); animation: sugerir 1.6s ease-in-out infinite; }
-@keyframes sugerir {
-  0%, 100% { box-shadow: 0 0 0 0.03em var(--sol); transform: translateY(0); }
-  50% { box-shadow: 0 0 0 0.07em var(--sol); transform: translateY(-4%); }
+.carta.gana { transform: scale(1.06); box-shadow: 0 0 0 0.04em var(--sol), 0 0 0 0.065em var(--tinta); }
+.carta.pierde { opacity: 0.45; transform: scale(0.94); }
+.carta.sugerida {
+  box-shadow: 0 0 0 0.035em var(--sol), 0 0 0 0.06em var(--tinta), 0.07em 0.07em 0 0.06em var(--tinta);
+  animation: sugerir 1.6s ease-in-out infinite;
 }
+@keyframes sugerir { 50% { transform: translateY(-5%); } }
+.carta.elegida { transform: translateY(-8%); box-shadow: 0 0 0 0.04em var(--blanco), 0 0 0 0.065em var(--tinta); }
+.carta.brilla { transform: scale(1.04); box-shadow: 0 0 0 0.04em var(--sol), 0 0 0 0.065em var(--tinta); }
 
-/* ---------- Mesa y mano ---------- */
-.mesa { flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5vmin; min-height: 0; }
-.mano { flex: none; width: 100%; display: flex; justify-content: center; gap: 2.5vmin; min-height: calc(min(28vw, 25vh) * 1.45); }
-.mano .carta { --cw: min(28vw, 25vh); }
-.mesa .carta { --cw: min(22vw, 19vh); }
-.duelo .mano { display: none; }
-.duelo .mesa { gap: 6vmin; }
-.duelo .mesa .carta { --cw: min(40vw, 46vh); }
-
-.lugar { display: flex; flex-direction: column; align-items: center; gap: 1vmin; }
-.quien { width: clamp(34px, 8vmin, 64px); height: clamp(34px, 8vmin, 64px); }
-.quien.yo {
+/* ---------- Lugares de la mesa ---------- */
+.lugar { display: flex; flex-direction: column; align-items: center; gap: 2vmin; }
+.quien {
+  width: clamp(52px, 9vmin, 84px);
+  height: clamp(52px, 9vmin, 84px);
+  flex: none;
+  padding: 4%;
   border-radius: 50%;
-  background: var(--sol);
-  color: var(--blanco);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: clamp(20px, 5vmin, 40px);
-  line-height: 1;
+  background: var(--blanco);
+  border: var(--borde-fino) solid var(--tinta);
+  overflow: hidden;
 }
 .hueco {
-  --cw: min(22vw, 19vh);
+  --cw: min(19vw, 17vh);
   width: var(--cw);
-  height: calc(var(--cw) * 1.45);
-  border-radius: calc(var(--cw) * 0.1);
-  border: 0.5vmin dashed var(--crema-oscuro);
+  height: calc(var(--cw) * 1.534);
+  border-radius: calc(var(--cw) * 0.07);
+  border: var(--borde) dashed var(--hueco-borde);
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-/* ---------- Nivel 0: conocer las cartas ---------- */
-.tabla .mano { display: none; }
-.tabla .mesa { flex-wrap: wrap; align-content: center; }
-.tabla .mesa > .carta { --cw: min(26vw, 40vh); }
-.dibujo-palo {
-  width: min(20vw, 40vh);
-  height: min(20vw, 40vh);
-  border-radius: 18%;
-  background: var(--blanco);
-  border: 0.8vmin solid var(--crema-oscuro);
-}
-.dibujo-palo svg { width: 80%; height: 80%; display: block; margin: auto; }
-.dibujo-palo.tocado { border-color: var(--celeste); }
-.dibujo-palo.sugerida, .escalon.sugerida, .nivel.sugerida, .btn-redondo.sugerida { outline: 1vmin solid var(--sol); outline-offset: 0.5vmin; }
-.dibujo-palo.sugerida, .escalon.sugerida { animation: sugerir-boton 1.6s ease-in-out infinite; }
-.grilla { display: grid; gap: 2.5vmin; justify-content: center; align-content: center; }
-.grilla-4 { --cw: min(20vw, 40vh); grid-template-columns: repeat(4, auto); }
-.grilla-10 { --cw: min(9.2vw, 30vh); grid-template-columns: repeat(5, auto); }
-.escalon {
-  /* Un escalón vacío mide lo mismo que uno lleno, para que la grilla no se mueva. */
-  width: calc(var(--cw) * 1.84);
-  height: calc(var(--cw) * 1.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: calc(var(--cw) * 0.1);
-  border: 0.5vmin dashed var(--crema-oscuro);
-  cursor: pointer;
-}
-.grilla-4 .escalon { width: var(--cw); }
-.escalon.destapado { border-color: transparent; }
-.mesa .grilla .escalon .carta { --cw: inherit; pointer-events: none; flex: none; }
-/* Las cartas del mismo número van en abanico; los pares de distinto palo, separados. */
-.escalon .carta + .carta { margin-left: calc(var(--cw) * -0.72); }
-.escalon.par .carta + .carta { margin-left: calc(var(--cw) * 0.08); }
-.grilla-10 .escalon.par .carta { --cw: calc(min(9.2vw, 30vh) * 0.88); }
-@media (orientation: portrait) {
-  .tabla .mesa > .carta { --cw: min(28vw, 30vh); }
-  .dibujo-palo { width: min(38vw, 22vh); height: min(38vw, 22vh); }
-  .grilla-4 { --cw: min(38vw, 24vh); grid-template-columns: repeat(2, auto); }
-  .grilla-10 { --cw: min(23vw, 11vh); grid-template-columns: repeat(2, auto); }
-  .grilla-10 .escalon.par .carta { --cw: calc(min(23vw, 11vh) * 0.88); }
-}
-
-/* ---------- Envido ---------- */
-.carta.elegida { transform: translateY(-8%); border-color: var(--celeste-fuerte); box-shadow: 0 0 0 0.04em var(--celeste); }
-.carta.brilla { transform: scale(1.04); border-color: var(--sol); box-shadow: 0 0 0 0.05em var(--sol); }
-.practica .mesa { flex-wrap: wrap; align-content: center; gap: 3vmin; }
-.practica .mesa .carta { --cw: min(28vw, 40vh); }
-.numero-grande {
-  flex-basis: 100%;
-  text-align: center;
-  font-size: min(14vmin, 110px);
-  line-height: 1;
-  min-height: 1em;
-  color: var(--celeste-fuerte);
-}
-.muestra { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5vmin; }
-.muestra .quien { flex-basis: 100%; display: flex; justify-content: center; }
-.muestra .quien svg { width: clamp(34px, 8vmin, 64px); }
-.mesa .muestra .carta { --cw: min(12vw, 15vh); }
-.canto.canto-envido { background: var(--celeste); box-shadow: 0 0.9vmin 0 var(--celeste-fuerte); }
-.canto.canto-real-envido { background: #B9A6E0; box-shadow: 0 0.9vmin 0 #8C76C2; }
-
-/* ---------- Puntos y botones de canto ---------- */
-.tantos { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8vmin; max-width: min(22vw, 19vh); min-height: clamp(8px, 2vmin, 16px); }
+.hueco .carta { flex: none; }
+.tantos { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8vmin; max-width: min(19vw, 17vh); min-height: clamp(10px, 2vmin, 16px); }
 .tantos i {
-  width: clamp(8px, 2vmin, 16px);
-  height: clamp(8px, 2vmin, 16px);
+  width: clamp(10px, 2vmin, 16px);
+  height: clamp(10px, 2vmin, 16px);
   border-radius: 50%;
-  background: var(--crema-oscuro);
+  background: var(--mesa-hueco);
+  box-shadow: 0 0 0 2px var(--tinta);
 }
 .tantos i.si { background: var(--sol); }
-#tantos-zorro i.si { background: var(--naranja); }
-.cantos { display: flex; flex-direction: column; gap: 2.5vmin; align-items: center; justify-content: center; min-width: clamp(84px, 20vmin, 160px); }
+#tantos-zorro i.si { background: var(--capi); }
+
+/* ---------- Botones de canto ---------- */
+.cantos { display: flex; flex-direction: column; gap: 3vmin; align-items: center; justify-content: center; min-width: clamp(84px, 16vmin, 140px); }
+.cantos:empty { display: none; }
 .canto {
-  --lado: clamp(84px, 20vmin, 160px);
+  --lado: clamp(80px, 15vmin, 136px);
   width: var(--lado);
   height: var(--lado);
-  border-radius: 24%;
-  background: var(--sol);
-  box-shadow: 0 0.9vmin 0 var(--sol-fuerte);
-  font-size: calc(var(--lado) * 0.5);
-  line-height: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: calc(var(--lado) * 0.05);
-  transition: transform 0.12s;
+  gap: calc(var(--lado) * 0.04);
+  border-radius: 50%;
+  color: var(--blanco);
+  border: var(--borde-grueso) solid var(--tinta);
+  box-shadow: var(--sombra);
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.canto:active { transform: translateY(0.6vmin); }
-.canto-quiero { background: #9FD3A4; box-shadow: 0 0.9vmin 0 #5FA868; }
-.canto-no-quiero { background: #F2B5A8; box-shadow: 0 0.9vmin 0 #D98572; }
+.canto:active { transform: translate(6px, 6px); box-shadow: 0 0 0 var(--tinta); }
+.canto .icono { width: 46%; height: 46%; }
+.canto-truco, .canto-retruco, .canto-vale-cuatro { background: var(--tomate); }
+.canto-envido, .canto-real-envido { background: var(--uva); }
+.canto-quiero { background: var(--pasto); color: var(--tinta); }
+.canto-no-quiero { background: var(--blanco); color: var(--tinta); }
 .canto .vale { display: flex; gap: calc(var(--lado) * 0.05); }
-.canto .vale i { width: calc(var(--lado) * 0.1); height: calc(var(--lado) * 0.1); border-radius: 50%; background: var(--blanco); }
-.canto.sugerida { animation: sugerir-boton 1.6s ease-in-out infinite; }
-@keyframes sugerir-boton { 50% { transform: scale(1.1); } }
+.canto .vale i { width: calc(var(--lado) * 0.09); height: calc(var(--lado) * 0.09); border-radius: 50%; background: currentColor; }
 
-@media (orientation: portrait) {
-  .mesa { flex-wrap: wrap; align-content: center; }
-  .cantos { flex-direction: row; width: 100%; min-height: clamp(84px, 20vmin, 160px); }
-  .muestra .quien { flex-basis: auto; }
-  .mesa .muestra .carta { --cw: min(20vw, 12vh); }
-  .mano { gap: 1.5vmin; min-height: calc(min(29vw, 25vh) * 1.45); }
-  .mano .carta { --cw: min(29vw, 25vh); }
-  .mesa .carta, .hueco { --cw: min(36vw, 22vh); }
+/* Lo que Capi sugiere tocar: anillo sol con contorno tinta, sin desenfoque */
+.canto.sugerida, .btn-redondo.sugerida, .nivel.sugerida, .dibujo-palo.sugerida, .escalon.sugerida {
+  box-shadow: 0 0 0 6px var(--sol), 0 0 0 10px var(--tinta), 8px 8px 0 10px var(--tinta);
+  animation: sugerir-boton 1.6s ease-in-out infinite;
 }
+@keyframes sugerir-boton { 50% { transform: scale(1.06); } }
+
+/* ---------- Nivel 0: conocer las cartas ---------- */
+.tabla .mano { display: none; }
+.tabla .mesa { flex-wrap: wrap; align-content: center; }
+.tabla .mesa > .carta { --cw: min(24vw, 38vh); }
+.dibujo-palo {
+  --cw: min(16vw, 34vh);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2vmin;
+  padding: 1.8vmin;
+  border-radius: clamp(16px, 3vmin, 32px);
+  background: var(--blanco);
+  border: var(--borde-grueso) solid var(--tinta);
+  box-shadow: var(--sombra);
+}
+.dibujo-palo .naipe {
+  position: relative;
+  display: block;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.534);
+  border-radius: calc(var(--cw) * 0.07);
+  box-shadow: 0 2px 6px rgba(20, 16, 12, 0.3);
+}
+.nombre-palo { font-weight: 700; font-size: clamp(18px, 3.4vmin, 30px); line-height: 1; }
+.dibujo-palo.tocado { background: var(--sol-claro); }
+.dibujo-palo.tocado::after {
+  content: '✓';
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--sol);
+  border: var(--borde) solid var(--tinta);
+  font-size: 28px;
+  font-weight: 700;
+}
+.grilla { display: grid; gap: 1.6vmin; justify-content: center; align-content: center; }
+.grilla-4 { --cw: min(15vw, 30vh); grid-template-columns: repeat(4, auto); }
+.grilla-10 { --cw: min(7.4vw, 22vh); grid-template-columns: repeat(5, auto); gap: max(16px, 3vmin); }
+.escalon {
+  /* Un escalón vacío mide lo mismo que uno lleno, para que la grilla no se mueva. */
+  width: calc(var(--cw) * 2.08);
+  height: calc(var(--cw) * 1.774);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: calc(var(--cw) * 0.16);
+  background: var(--mesa-hueco);
+  border: var(--borde) dashed var(--hueco-borde);
+  cursor: pointer;
+}
+.grilla-4 .escalon { width: calc(var(--cw) * 1.24); }
+.escalon.destapado { background: var(--blanco); border: var(--borde-fino) solid var(--tinta); box-shadow: var(--sombra-s); }
+.escalon.sugerida { background: var(--sol-claro); border: var(--borde) solid var(--tinta); box-shadow: inset 0 0 0 6px var(--sol), var(--sombra-s); animation: none; }
+/* La manito del escalón que toca destapar */
+.escalon.sugerida:empty::after {
+  content: '';
+  width: 46%;
+  height: 46%;
+  background: var(--tinta);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11V5.5a1.5 1.5 0 0 1 3 0V11'/%3E%3Cpath d='M12 10.5V9a1.5 1.5 0 0 1 3 0v2'/%3E%3Cpath d='M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 15a1.5 1.5 0 0 1 2.5-1.7L9 16'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 11V5.5a1.5 1.5 0 0 1 3 0V11'/%3E%3Cpath d='M12 10.5V9a1.5 1.5 0 0 1 3 0v2'/%3E%3Cpath d='M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L4 15a1.5 1.5 0 0 1 2.5-1.7L9 16'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* En el abanico, la barrita va solo en la carta de adelante */
+.escalon .carta:not(:last-child) .fuerza { opacity: 0; }
+.mesa .grilla .escalon .carta { --cw: inherit; pointer-events: none; flex: none; }
+/* Las cartas del mismo número van en abanico; los pares de distinto palo, separados. */
+.escalon .carta + .carta { margin-left: calc(var(--cw) * -0.72); }
+.escalon.par .carta + .carta { margin-left: calc(var(--cw) * 0.08); }
+.grilla-10 .escalon.par .carta { --cw: calc(min(7.4vw, 22vh) * 0.88); }
+
+/* ---------- Envido ---------- */
+.practica .mesa { flex-wrap: wrap; align-content: center; gap: 3vmin; }
+.practica .mesa .carta { --cw: min(24vw, 36vh); }
+.numero-grande {
+  flex-basis: 100%;
+  text-align: center;
+  font-weight: 700;
+  font-size: min(14vmin, 110px);
+  line-height: 1;
+  min-height: 1em;
+  color: var(--blanco);
+  text-shadow: 4px 0 0 var(--tinta), -4px 0 0 var(--tinta), 0 4px 0 var(--tinta), 0 -4px 0 var(--tinta), 6px 6px 0 var(--tinta);
+}
+.muestra { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5vmin; }
+.muestra .quien { flex-basis: auto; }
+.mesa .muestra .carta { --cw: min(11vw, 14vh); }
 
 /* ---------- Fin ---------- */
-#p-fin { justify-content: center; gap: 4vmin; }
-.estrellas { font-size: min(24vmin, 160px); line-height: 1; display: flex; gap: 2vmin; }
-.estrellas i.si { animation: aparecer 0.5s ease-out both; }
+#p-fin { justify-content: center; gap: 3vmin; }
+.estrellas { display: flex; align-items: flex-end; gap: 2vmin; }
+.estrellas .estrella { width: min(18vmin, 130px); height: min(18vmin, 130px); animation: aparecer 0.5s ease-out both; }
+.estrellas .estrella:nth-child(2) { width: min(24vmin, 170px); height: min(24vmin, 170px); margin-bottom: 3vmin; }
 @keyframes aparecer { from { transform: scale(0.3); opacity: 0; } }
-.fin-botones { display: flex; gap: 8vmin; }
+.fin-cuerpo { display: flex; align-items: center; gap: 6vmin; }
+.fin-botones { display: flex; gap: 6vmin; align-items: flex-start; }
+#p-fin .barra { position: absolute; top: max(2vmin, env(safe-area-inset-top)); left: max(3vmin, env(safe-area-inset-left)); right: max(3vmin, env(safe-area-inset-right)); width: auto; }
+
+/* ---------- Celular parado ---------- */
+@media (orientation: portrait) {
+  .inicio-cuerpo { flex-direction: column; gap: 3vmin; }
+  .capi.grande { width: min(30vh, 70vw); height: min(30vh, 70vw); }
+  .titulo { font-size: clamp(56px, 18vw, 110px); }
+  .inicio-derecha { gap: 3vh; }
+  .btn-redondo.enorme { --btn: clamp(104px, 28vw, 150px); }
+
+  .niveles { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); padding: 3vh 4vw 14vh; }
+  .niveles .nivel:nth-child(odd), .niveles .nivel:nth-child(even) { align-self: center; }
+  .nivel { --lado: clamp(84px, 24vw, 120px); }
+  .nivel.actual { --lado: clamp(100px, 30vw, 140px); }
+
+  .mesa { flex-wrap: wrap; align-content: center; }
+  .cantos { flex-direction: row; width: 100%; min-height: clamp(80px, 15vmin, 136px); }
+  .canto { --lado: clamp(76px, 20vw, 100px); }
+  .mano { gap: 1.5vmin; min-height: calc(min(28vw, 20vh) * 1.534 + 14px); }
+  .mano .carta { --cw: min(28vw, 20vh); }
+  .mesa .carta, .hueco { --cw: min(32vw, 19vh); }
+  .tantos { max-width: min(32vw, 19vh); }
+  .mesa .muestra .carta { --cw: min(18vw, 11vh); }
+
+  .tabla .mesa > .carta { --cw: min(28vw, 28vh); }
+  .dibujo-palo { --cw: min(32vw, 20vh); }
+  .duelo .mesa .carta { --cw: min(42vw, 30vh); }
+  .practica .mesa .carta { --cw: min(38vw, 24vh); }
+  .grilla-4 { --cw: min(30vw, 20vh); grid-template-columns: repeat(2, auto); }
+  .grilla-10 { --cw: min(18vw, 7.6vh); grid-template-columns: repeat(2, auto); gap: 16px; }
+  .grilla-10 .escalon.par .carta { --cw: calc(min(18vw, 7.6vh) * 0.88); }
+
+  .fin-cuerpo { flex-direction: column; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
