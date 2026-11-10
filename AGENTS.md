@@ -12,7 +12,8 @@ Todo en español rioplatense: código, comentarios, mensajes de commit, pull req
 - **Las frases se graban.** Cada frase nueva necesita un id estable y corto. No reutilizar un id para otro texto: rompería la grabación que ya existe.
 - **El motor no toca la pantalla.** `js/mazo.js`, `js/motor.js` y `js/bot.js` no usan `document`, `window` ni `Voz`, y funcionan en Node.
 - **Toda regla nueva o cambiada en el motor lleva prueba** en `test/`.
-- **No invertir en estética** sin que el papá lo pida: está pendiente de definir.
+- **Estética:** seguir el design system Truco Recreo (ver `CONTEXT.md`). No invertir en el estilo viejo. Si algo nuevo afecta la estética (pantallas, componentes), avisarle al papá para que lo sume la sesión de diseño.
+- **Personajes:** Capi es rival y guía. No meter al zorro ni al carpincho en pantallas ni frases nuevas.
 - Sin dependencias ni paso de compilación, salvo que se acuerde.
 
 ## Cómo verificar
