@@ -27,10 +27,10 @@ De ahí salen las reglas de diseño que no se negocian:
 | Ayuda | Se va retirando: al principio Capi marca la jugada sugerida, después solo si se lo toca |
 | Personajes | **Capi**, una capibara tomando mate, es rival y guía a la vez: juega contra el nene y le da los consejos (globo y brillo amarillo en la jugada sugerida). No hay zorro ni carpincho aparte |
 | Estilo visual | Design system **"Truco Recreo"**, tipo figurita: fondo cielo, mesa azul, superficies blancas con contorno marino grueso y sombra dura, fuente Fredoka, íconos de trazo (sin emojis). Cada color significa una sola cosa: sol = acción principal, "te toca" y jugada sugerida; tomate = Truco; uva = Envido; pasto = solo decorado. Botones redondos de 66 px como mínimo. Fuente de verdad: https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa (mockups: https://claude.ai/artifact/SWTix64oPQV4gWZ8QuUBnF, fila B) |
-| Cartas | Baraja española ilustrada clásica (hoja de sprites del design system, 12 columnas × 5 filas, la fila 5 trae el dorso). 150 px en la mano, 90 px en la mesa. Barrita de fuerza en los primeros niveles. **Licencia pendiente** (parece "Naipes libres"): confirmar el crédito antes de publicar con esa baraja |
+| Cartas | Baraja española ilustrada clásica (hoja de sprites del design system, 12 columnas × 5 filas, la fila 5 trae el dorso). 150 px en la mano, 90 px en la mesa. Barrita de fuerza en los primeros niveles. Es "Baraja española completa.png" de Basquetteur (Wikimedia Commons), **CC BY-SA 3.0**: el crédito está en `CREDITOS.md` y en `creditos.html`, enlazada desde el inicio; no sacarlo |
 | Premios | Estrellas por nivel y un festejo corto. Sin música |
 
-**La estética ya está definida** (Truco Recreo, arriba), pero **todavía no está aplicada en el código**: el juego sigue con el estilo viejo, un zorro rival y un carpincho guía. Hasta aplicarla, no invertir en el estilo viejo y no meter al zorro en pantallas ni frases nuevas. Si algo nuevo afecta la estética (pantallas, componentes), avisar a la sesión de diseño para sumarlo al design system.
+**La estética Truco Recreo está aplicada en el código**, con Capi como único personaje. Si algo nuevo afecta la estética (pantallas, componentes), seguir el design system y pasar capturas al diseñador UI (`AGENTS.md`).
 
 ## Variantes de reglas confirmadas
 
@@ -66,7 +66,7 @@ Página estática, sin compilación ni dependencias. Se abre con cualquier servi
 
 - `js/mazo.js`: las 40 cartas y su fuerza. Sin pantalla.
 - `js/motor.js`: reglas. Recibe acciones y devuelve eventos. Sin pantalla ni voz, se prueba con Node.
-- `js/bot.js`: el rival (en el código todavía es el zorro; pasa a ser Capi). Juega simple y sin mentir, para que se entienda por qué hace cada cosa.
+- `js/bot.js`: el rival, Capi (en el código las variables todavía dicen `ZORRO`). Juega simple y sin mentir, para que se entienda por qué hace cada cosa.
 - `js/frases.js`: todas las frases, cada una con un id.
 - `js/voz.js`: dice frases por id. Usa `audio/<id>.mp3` si está en `audio/manifest.json`; si no, la voz del dispositivo.
 - `js/cartas.js`: dibujos de cartas y personajes.

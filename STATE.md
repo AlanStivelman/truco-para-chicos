@@ -13,6 +13,10 @@
 | 4. El envido (práctica y partida a 9) | Listo |
 | 5. Partida completa a 15 | Pendiente |
 
+## Estética
+
+Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como rival y guía (también en las frases), Fredoka desde el repo, íconos de trazo sin emojis, camino de niveles, inicio con Aprender y Jugar (partida a 15 contra Capi, `nivelActual = 'libre'`, estrellas en `progreso.estrellas.libre`). Los ids de frases `zorro-*` se mantienen; solo cambió el texto.
+
 ## Qué está verificado
 
 - `npm test`: 30 pruebas, entre ellas las reglas del motor, 500 partidas completas entre bots y los grupos de la tabla del nivel 0.
@@ -27,23 +31,19 @@
 
 - Nivel 5 (partida a 15).
 - Pantalla para que el papá grabe las frases con su voz.
-- **Aplicar la estética Truco Recreo** (ver `CONTEXT.md`): baraja ilustrada, Capi, colores, Fredoka, íconos de trazo, pantalla de niveles como camino.
-- **Reemplazar al zorro y al carpincho por Capi**, también en las frases que los nombran (`zorro-*`, `n2-intro`, `n3-intro`, `n4-partida`, `partida-zorro`, `sin-par-zorro`, etc.). Antes de que el papá grabe.
-- **Modo "Jugar"** desde el inicio: partida directa a 15 contra Capi (comparte casi todo con el nivel 5).
+- **Nivel 5** en el camino sigue "pronto", aunque el botón Jugar del inicio ya ofrece la partida a 15 (sin guía).
 - Confirmar que el link de GitHub Pages abre bien en la tablet (https://alanstivelman.github.io/truco-para-chicos/).
 
 ## Para retomar
 
 Orden recomendado:
-1. **Estética Truco Recreo + Capi en lugar del zorro y el carpincho**, juntos: tocan las mismas pantallas. Incluye reescribir las frases que nombran al zorro, antes de que el papá grabe.
-2. **Nivel 5 y modo "Jugar"** (comparten la partida a 15 contra Capi).
-3. **Pantalla para grabar la voz.**
+1. **Nivel 5**: la partida a 15 con guía (el modo Jugar ya la juega sin guía, con `jugarLibre()`).
+2. **Pantalla para grabar la voz.**
 
 Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
 - Design system: https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa. Empezar por `project/README.md` y `project/tokens.json`.
 - Mockups aprobados, fila B "Recreo" (inicio, juego, niveles, fin): https://claude.ai/artifact/SWTix64oPQV4gWZ8QuUBnF
-- En el asset store del design system: la baraja (`baraja-espanola.webp`, id `d2c04ba4d621f329f582c5f866035eb6`; 2000×1278, 12 columnas del 1 al 12 × 5 filas: oros, copas, espadas, bastos y dorso en la fila 5, columna 2; recorte con `background-size: 1200% 500%` y `background-position: (col/11·100)% (fila/4·100)%`) y Capi en SVG (id `fad9e455464043557de81f73052af48c`). Copiarlos al repo, por ejemplo en `img/`.
-- **Licencia de la baraja pendiente** (parece "Naipes libres"): confirmar y poner el crédito antes de publicar con ella.
+- En el asset store del design system: la baraja (`baraja-espanola.webp`, id `d2c04ba4d621f329f582c5f866035eb6`; 2000×1278, 12 columnas del 1 al 12 × 5 filas: oros, copas, espadas, bastos y dorso en la fila 5, columna 2; recorte con `background-size: 1200% 500%` y `background-position: (col/11·100)% (fila/4·100)%`) y Capi en SVG (id `fad9e455464043557de81f73052af48c`). Ya están copiados en `img/` (`baraja-espanola.webp` y `capi.svg`).
 
 Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGENTS.md`), y unir a `main` sin pedir permiso cuando se cumplen las condiciones.
 

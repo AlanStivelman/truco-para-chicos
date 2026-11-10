@@ -3,36 +3,60 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#FBF3E1">
+  <meta name="theme-color" content="#9ED8F5">
   <title>Truco para chicos</title>
+  <link rel="preload" href="img/baraja-espanola.webp" as="image">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Inicio: un solo botón gigante. El toque también habilita el audio del navegador. -->
+  <!-- Inicio: dos caminos. El primer toque en cualquier lado habilita el audio del navegador. -->
   <section id="p-inicio" class="pantalla activa">
-    <div class="carpincho grande" data-carpincho></div>
-    <button id="btn-jugar" class="btn-redondo enorme" aria-label="Jugar">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 24 L78 50 L36 76 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/></svg>
-    </button>
+    <div class="barra">
+      <a class="creditos" href="creditos.html">Créditos</a>
+      <button class="btn-redondo sol oir" aria-label="Escuchar de nuevo" data-icono="parlante"></button>
+    </div>
+    <div class="inicio-cuerpo">
+      <div class="inicio-capi">
+        <p class="globo">¿Jugamos o aprendemos?</p>
+        <div class="capi grande" data-capi></div>
+      </div>
+      <div class="inicio-derecha">
+        <h1 class="titulo"><span>Truco</span><span class="para-chicos">para chicos</span></h1>
+        <div class="inicio-botones">
+          <div class="con-etiqueta">
+            <button id="btn-aprender" class="btn-redondo enorme" aria-label="Aprender a jugar con Capi" data-icono="libro"></button>
+            <span class="etiqueta">Aprender</span>
+          </div>
+          <div class="con-etiqueta">
+            <button id="btn-jugar" class="btn-redondo enorme sol" aria-label="Jugar un partido" data-icono="play"></button>
+            <span class="etiqueta">Jugar</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="loma" aria-hidden="true"></div>
   </section>
 
-  <!-- Elegir nivel -->
+  <!-- Elegir nivel: un camino de paradas -->
   <section id="p-niveles" class="pantalla">
     <div class="barra">
-      <button class="carpincho guia" data-carpincho aria-label="Repetir"></button>
+      <button id="btn-niveles-casa" class="btn-redondo" aria-label="Volver al inicio" data-icono="casa"></button>
+      <div id="estrellas-total" class="pastilla" aria-live="polite"></div>
+      <button class="btn-redondo sol oir" aria-label="Escuchar de nuevo" data-icono="parlante"></button>
     </div>
-    <div id="niveles" class="niveles"></div>
+    <div class="camino-caja">
+      <svg id="camino" class="camino" aria-hidden="true"></svg>
+      <div id="niveles" class="niveles"></div>
+    </div>
+    <div class="loma" aria-hidden="true"></div>
   </section>
 
   <!-- Juego -->
   <section id="p-juego" class="pantalla">
     <div class="barra">
-      <button id="btn-casa" class="btn-redondo" aria-label="Volver">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="carpincho guia" data-carpincho aria-label="Ayuda"></button>
+      <button id="btn-casa" class="btn-redondo" aria-label="Volver" data-icono="mapa"></button>
       <div id="marcadores" class="marcadores"></div>
-      <div id="zorro" class="zorro" data-zorro></div>
+      <button class="btn-redondo sol oir" aria-label="Escuchar de nuevo" data-icono="parlante"></button>
     </div>
     <div id="mesa" class="mesa"></div>
     <div id="mano" class="mano"></div>
@@ -40,16 +64,25 @@
 
   <!-- Fin de nivel -->
   <section id="p-fin" class="pantalla">
-    <div id="estrellas" class="estrellas"></div>
-    <div class="carpincho mediano" data-carpincho></div>
-    <div class="fin-botones">
-      <button id="btn-otra" class="btn-redondo grande" aria-label="Jugar otra vez">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M74 50 A24 24 0 1 1 62 29" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/><path d="M58 14 L76 30 L54 38 Z" fill="currentColor"/></svg>
-      </button>
-      <button id="btn-fin-casa" class="btn-redondo grande sol" aria-label="Volver a los juegos">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+    <div class="barra">
+      <span></span>
+      <button class="btn-redondo sol oir" aria-label="Escuchar de nuevo" data-icono="parlante"></button>
     </div>
+    <div id="estrellas" class="estrellas"></div>
+    <div class="fin-cuerpo">
+      <div class="capi mediano" data-capi></div>
+      <div class="fin-botones">
+        <div class="con-etiqueta">
+          <button id="btn-otra" class="btn-redondo grande sol" aria-label="Jugar otra vez" data-icono="repetir"></button>
+          <span class="etiqueta">Otra vez</span>
+        </div>
+        <div class="con-etiqueta">
+          <button id="btn-fin-casa" class="btn-redondo grande" aria-label="Volver a los niveles" data-icono="mapa"></button>
+          <span class="etiqueta" id="etiqueta-fin-casa">Niveles</span>
+        </div>
+      </div>
+    </div>
+    <div class="loma" aria-hidden="true"></div>
   </section>
 
   <script src="js/frases.js"></script>

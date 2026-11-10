@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s);
 const espera = ms => new Promise(r => setTimeout(r, ms));
 
 const NIVELES_LISTOS = 4; // el nivel 5 todavía no está hecho
-const ICONOS_NIVEL = ['📖', '💪', '🖐️', '📣', '➕', '🏆'];
+const ICONOS_NIVEL = ['libro', 'dos', 'tres', 'megafono', 'envido', 'trofeo'];
 
 let progreso = { estrellas: {} };
 try { progreso = JSON.parse(localStorage.getItem('truco-progreso')) || progreso; } catch (e) { /* sin guardado */ }
@@ -12,16 +12,34 @@ function guardar() {
 }
 
 let partida = 0;          // cambia cada vez que se entra o sale de un nivel
-let ayuda = () => {};     // qué pasa al tocar al carpincho
-let nivelActual = 1;
+let ayuda = () => Voz.decir('inicio'); // qué pasa al tocar el parlante
+let nivelActual = 1;      // un número de nivel, o 'libre' para el partido del botón Jugar
 
-document.querySelectorAll('[data-carpincho]').forEach(e => { e.innerHTML = SVG_CARPINCHO; });
-document.querySelectorAll('[data-zorro]').forEach(e => { e.innerHTML = SVG_ZORRO; });
+document.querySelectorAll('[data-capi]').forEach(e => { e.innerHTML = SVG_CAPI; });
+document.querySelectorAll('[data-icono]').forEach(e => { e.innerHTML = e.dataset.icono === 'play' ? SVG_PLAY : icono(e.dataset.icono); });
 Voz.alHablar(si => document.body.classList.toggle('hablando', si));
 
 function mostrar(nombre) {
   document.querySelectorAll('.pantalla').forEach(p => p.classList.toggle('activa', p.id === 'p-' + nombre));
 }
+
+// ---------- Inicio ----------
+function irAInicio() {
+  partida++;
+  mostrar('inicio');
+  ayuda = () => Voz.decir('inicio');
+  Voz.decir('inicio');
+}
+// El navegador no deja hablar antes del primer toque: el primero que no sea en un botón
+// habilita el audio y saluda. Va en 'click' porque en pantallas táctiles 'pointerdown'
+// no cuenta como gesto del usuario y la voz no arranca.
+let saludado = false;
+$('#p-inicio').addEventListener('click', ev => {
+  Voz.activar();
+  if (saludado || ev.target.closest('button, a')) return;
+  saludado = true;
+  Voz.decir('inicio');
+});
 
 // ---------- Elegir nivel ----------
 function irANiveles(saludo) {
@@ -29,6 +47,9 @@ function irANiveles(saludo) {
   mostrar('niveles');
   const cont = $('#niveles');
   cont.innerHTML = '';
+  let actual = 0; // el último nivel abierto y listo: el que toca jugar
+  let total = 0;
+  const botones = [];
   for (let n = 0; n <= 5; n++) {
     // Un nivel se abre con 2 estrellas en el anterior, o si ya se jugó antes
     // (para no cerrarle el nivel 1 a quien lo jugó antes de que existiera el 0).
@@ -38,10 +59,15 @@ function irANiveles(saludo) {
     b.className = 'nivel' + (abierto ? '' : ' cerrado') + (abierto && !listo ? ' pronto' : '') +
       (n === 0 && !progreso.estrellas[0] ? ' sugerida' : '');
     const ganadas = progreso.estrellas[n] || 0;
+    total += ganadas;
+    if (abierto && listo) actual = n;
+    b.setAttribute('aria-label', `Nivel ${n}` + (abierto ? (listo ? `, ${ganadas} estrellas` : ', pronto') : ', cerrado'));
     b.innerHTML =
       `<span class="nivel-num">${n}</span>` +
-      `<span class="nivel-icono">${abierto ? (listo ? ICONOS_NIVEL[n] : '🚧') : '🔒'}</span>` +
-      `<span class="nivel-estrellas">${[1, 2, 3].map(i => `<i class="${i <= ganadas ? 'si' : ''}">★</i>`).join('')}</span>`;
+      `<span class="nivel-icono">${icono(abierto && !listo ? 'reloj' : ICONOS_NIVEL[n])}</span>` +
+      (abierto ? '' : `<span class="nivel-candado">${icono('candado')}</span>`) +
+      `<span class="nivel-estrellas">${[1, 2, 3].map(i => estrella(i <= ganadas)).join('')}</span>`;
+    botones.push(b);
     b.onclick = () => {
       if (!abierto) return Voz.decir('nivel-cerrado');
       if (!listo) return Voz.decir('nivel-pronto');
@@ -49,21 +75,56 @@ function irANiveles(saludo) {
     };
     cont.appendChild(b);
   }
+  botones[actual].classList.add('actual');
+  $('#estrellas-total').innerHTML = estrella(true) + `<span>${total}</span>`;
+  $('#estrellas-total').setAttribute('aria-label', `${total} estrellas`);
+  dibujarCamino(actual);
   ayuda = () => Voz.decir('elegi-juego');
   if (saludo) Voz.decir('hola', 'elegi-juego'); else Voz.decir('elegi-juego');
 }
 
+// El camino une los niveles en orden. Va pintado de amarillo hasta el que toca jugar.
+let caminoHasta = 0;
+function dibujarCamino(hasta = caminoHasta) {
+  caminoHasta = hasta;
+  if (!$('#p-niveles').classList.contains('activa')) return;
+  const caja = $('.camino-caja').getBoundingClientRect();
+  const pts = [...document.querySelectorAll('#niveles .nivel')].map(b => {
+    const r = b.getBoundingClientRect();
+    return [r.left + r.width / 2 - caja.left, r.top + r.height / 2 - caja.top];
+  });
+  const trazo = lista => lista.map(([x, y], i) => {
+    if (i === 0) return `M${x} ${y}`;
+    const [px, py] = lista[i - 1];
+    return Math.abs(py - y) > Math.abs(px - x) ? `C${px} ${(py + y) / 2} ${x} ${(py + y) / 2} ${x} ${y}` : `C${(px + x) / 2} ${py} ${(px + x) / 2} ${y} ${x} ${y}`;
+  }).join(' ');
+  const todo = trazo(pts), hecho = trazo(pts.slice(0, hasta + 1));
+  const svg = $('#camino');
+  svg.setAttribute('viewBox', `0 0 ${caja.width} ${caja.height}`);
+  svg.innerHTML =
+    `<path d="${todo}" class="camino-borde"/><path d="${todo}" class="camino-calle"/>` +
+    (hasta > 0 ? `<path d="${hecho}" class="camino-hecho"/>` : '');
+}
+window.addEventListener('resize', () => dibujarCamino());
+
 function empezar(n) {
   nivelActual = n;
+  $('#btn-casa').innerHTML = icono(n === 'libre' ? 'casa' : 'mapa');
+  $('#btn-casa').setAttribute('aria-label', n === 'libre' ? 'Volver al inicio' : 'Volver a los niveles');
+  if (n === 'libre') return jugarLibre();
   [nivel0, nivel1, nivel2, nivel3, nivel4][n]();
 }
 
-function prepararJuego({ conMano, conZorro, practica = false, tabla = false }) {
+// El partido del botón Jugar: a 15 contra Capi, sin guía armada.
+function jugarLibre() {
+  jugarPartida({ nivel: 'libre', meta: 15, excluir: ['mazo'], intro: 'jugar-intro', reparto: () => undefined, id: ++partida });
+}
+
+function prepararJuego({ conMano, practica = false, tabla = false }) {
   mostrar('juego');
   $('#p-juego').classList.toggle('duelo', !conMano && !tabla);
   $('#p-juego').classList.toggle('practica', practica);
   $('#p-juego').classList.toggle('tabla', tabla);
-  $('#zorro').style.visibility = conZorro ? 'visible' : 'hidden';
   $('#mesa').innerHTML = '';
   $('#mano').innerHTML = '';
   $('#marcadores').innerHTML = '';
@@ -165,9 +226,9 @@ function pasoTabla(escalones, intro, vivo, control = {}) {
 async function nivel0() {
   const id = ++partida;
   const vivo = () => id === partida;
-  prepararJuego({ conMano: false, conZorro: false, tabla: true });
+  prepararJuego({ conMano: false, tabla: true });
 
-  // Paso A: qué es el truco. No se puede saltear tocando al carpincho.
+  // Paso A: qué es el truco. No se puede saltear tocando el parlante.
   const mesa = $('#mesa');
   mesa.innerHTML = '';
   barajar(MAZO).slice(0, 3).forEach(c => {
@@ -197,9 +258,9 @@ async function nivel0() {
 
   // Final: puede explorar la tabla; el botón amarillo (acción principal) termina el nivel.
   const listo = document.createElement('button');
-  listo.className = 'btn-redondo sol';
+  listo.className = 'btn-redondo sol listo';
   listo.setAttribute('aria-label', 'Seguir');
-  listo.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22 52 L42 72 L80 30" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  listo.innerHTML = icono('tilde');
   listo.onclick = () => terminar(0, 3);
   $('#marcadores').appendChild(listo);
   ayuda = () => { listo.classList.add('sugerida'); Voz.decir('n0-tabla-fin'); };
@@ -212,7 +273,7 @@ async function nivel1() {
   const vivo = () => id === partida;
   const TOTAL = 8, CON_BARRA = 5;
   const resultados = [];
-  prepararJuego({ conMano: false, conZorro: false });
+  prepararJuego({ conMano: false });
   pintarMarcadores(TOTAL, resultados);
   ayuda = () => Voz.decir('n1-intro');
   await Voz.decir('n1-intro');
@@ -261,7 +322,7 @@ async function nivel1() {
 }
 
 // ---------- Nivel 2: ganar la ronda (mejor de tres) ----------
-// res: resultado de cada mano (1 chico, -1 zorro, 0 parda). Devuelve quién ganó la ronda o null.
+// res: resultado de cada mano (1 chico, -1 Capi, 0 parda). Devuelve quién ganó la ronda o null.
 function ganadorRonda(res, mano) {
   const [a, b, c] = res;
   if (res.length >= 2) {
@@ -289,7 +350,7 @@ async function nivel2() {
   const vivo = () => id === partida;
   const RONDAS = 3;
   let ganadas = 0;
-  prepararJuego({ conMano: true, conZorro: true });
+  prepararJuego({ conMano: true });
   montarMesa();
   ayuda = () => Voz.decir('n2-intro');
   pintarMarcadores(3, []);
@@ -300,7 +361,7 @@ async function nivel2() {
     const mazo = barajar(MAZO);
     const mia = mazo.slice(0, 3), suya = mazo.slice(3, 6);
     const mano = r % 2 === 0 ? 1 : -1;
-    const guiado = r === 0; // en la primera ronda el carpincho muestra qué carta conviene
+    const guiado = r === 0; // en la primera ronda Capi muestra qué carta conviene
     const res = [];
     let turno = mano;
     pintarMarcadores(3, res);
@@ -382,8 +443,8 @@ async function nivel2() {
 // ---------- Mesa compartida por los niveles con rival ----------
 function montarMesa() {
   $('#mesa').innerHTML =
-    `<div class="lugar"><div class="quien">${SVG_ZORRO}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
-    `<div class="lugar"><div class="quien yo">★</div><div class="tantos" id="tantos-yo"></div><div class="hueco" id="hueco-yo"></div></div>` +
+    `<div class="lugar"><div class="quien">${SVG_CAPI}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
+    `<div class="lugar"><div class="quien yo">${SVG_NENE}</div><div class="tantos" id="tantos-yo"></div><div class="hueco" id="hueco-yo"></div></div>` +
     `<div class="cantos" id="cantos"></div>`;
 }
 function poner(quien, c) {
@@ -417,13 +478,13 @@ const hayFigura = cartas => cartas.some(c => c.n >= 10);
 
 const YO = 0, ZORRO = 1;
 const BOTON_CANTO = {
-  'truco': { icono: '📣', puntos: 2 },
-  'retruco': { icono: '📣', puntos: 3 },
-  'vale-cuatro': { icono: '📣', puntos: 4 },
-  'envido': { icono: '➕' },
-  'real-envido': { icono: '➕' },
-  'quiero': { icono: '👍' },
-  'no-quiero': { icono: '👎' },
+  'truco': { icono: 'megafono', puntos: 2 },
+  'retruco': { icono: 'megafono', puntos: 3 },
+  'vale-cuatro': { icono: 'megafono', puntos: 4 },
+  'envido': { icono: 'envido', esEnvido: true },
+  'real-envido': { icono: 'envido', esEnvido: true },
+  'quiero': { icono: 'tilde' },
+  'no-quiero': { icono: 'cruz' },
 };
 // Cuánto vale el envido si se acepta, y cuánto gana el que cantó si no se acepta.
 const envidoEnJuego = cantos => cantos.reduce((s, c) => s + Motor.VALOR_ENVIDO[c], 0);
@@ -469,11 +530,11 @@ function pedirAccion(e, guiado, excluir) {
     permitidas.filter(a => a.tipo !== 'carta').forEach(a => {
       const info = BOTON_CANTO[a.tipo];
       // Los puntitos muestran cuánto pasa a valer si el otro dice quiero.
-      const puntos = info.icono === '➕' ? envidoEnJuego([...e.envido.cantos, a.tipo]) : info.puntos;
+      const puntos = info.esEnvido ? envidoEnJuego([...e.envido.cantos, a.tipo]) : info.puntos;
       const b = document.createElement('button');
       b.className = 'canto canto-' + a.tipo;
       b.setAttribute('aria-label', FRASES['yo-' + a.tipo]);
-      b.innerHTML = `<span>${info.icono}</span>` + (puntos ? `<span class="vale">${'<i></i>'.repeat(puntos)}</span>` : '');
+      b.innerHTML = icono(info.icono) + (puntos ? `<span class="vale">${'<i></i>'.repeat(puntos)}</span>` : '');
       b.onclick = () => elegir(a);
       if (sugerida.tipo === a.tipo) elSugerido = b;
       cantos.appendChild(b);
@@ -502,7 +563,7 @@ async function mostrarEnvido(ev, e, vivo, avisos) {
   await Voz.decir(...frases);
   if (!vivo()) return false;
 
-  // Las cartas del zorro se muestran donde van los botones, que en este momento están vacíos,
+  // Las cartas de Capi se muestran donde van los botones, que en este momento están vacíos,
   // para no tapar lo que hay en la mesa.
   const muestra = document.createElement('div');
   muestra.className = 'muestra';
@@ -570,13 +631,13 @@ async function contar(eventos, e, vivo, avisos) {
   return true;
 }
 
-// Partida contra el zorro. Las primeras rondas pueden venir armadas (reparto(n) devuelve
-// las cartas de la ronda n, o nada para repartir al azar); en esas el carpincho guía.
+// Partida contra Capi. Las primeras rondas pueden venir armadas (reparto(n) devuelve
+// las cartas de la ronda n, o nada para repartir al azar); en esas Capi guía.
 async function jugarPartida({ nivel, meta, excluir, intro, reparto, id }) {
   const vivo = () => id === partida;
   const e = Motor.nuevaPartida({ meta, mano: YO });
   const avisos = {};
-  prepararJuego({ conMano: true, conZorro: true });
+  prepararJuego({ conMano: true });
   montarMesa();
   pintarTantos(e.puntos, e.meta);
   pintarMarcadores(3, []);
@@ -622,7 +683,7 @@ const es = (n, palo) => c => c.n === n && c.palo === palo;
 
 // ---------- Nivel 3: el truco ----------
 // Las dos primeras rondas enseñan: en la primera el chico tiene cartas para cantar truco;
-// en la segunda el zorro canta y conviene no querer.
+// en la segunda Capi canta y conviene no querer.
 function repartoTruco(n) {
   if (n > 1) return undefined;
   const m = barajar(MAZO);
@@ -638,8 +699,8 @@ function nivel3() {
 }
 
 // ---------- Nivel 4: el envido ----------
-// Ronda 1: el chico es mano con 33 y el zorro tiene 28 sin cartas para el truco, así que
-// el zorro quiere y se ve la comparación. Ronda 2: el zorro es mano con 31, sin cartas de
+// Ronda 1: el chico es mano con 33 y Capi tiene 28 sin cartas para el truco, así que
+// Capi quiere y se ve la comparación. Ronda 2: Capi es mano con 31, sin cartas de
 // truco, y canta envido; el chico tiene 6 sin par y le conviene no querer.
 function repartoEnvido(n) {
   if (n === 0) return [
@@ -666,7 +727,7 @@ function manoPractica(conFigura) {
 async function practicaPar(vivo) {
   const MANOS = 4;
   const resultados = [];
-  prepararJuego({ conMano: false, conZorro: false, practica: true });
+  prepararJuego({ conMano: false, practica: true });
   pintarMarcadores(MANOS, resultados);
   ayuda = () => Voz.decir('n4-intro');
   await Voz.decir('n4-intro');
@@ -741,7 +802,12 @@ function terminar(n, estrellas) {
   progreso.estrellas[n] = Math.max(progreso.estrellas[n] || 0, estrellas);
   guardar();
   mostrar('fin');
-  $('#estrellas').innerHTML = [1, 2, 3].map(i => `<i class="${i <= estrellas ? 'si' : ''}" style="animation-delay:${i * 0.25}s">★</i>`).join('');
+  $('#estrellas').innerHTML = [1, 2, 3].map(i => estrella(i <= estrellas).replace('<svg ', `<svg style="animation-delay:${i * 0.25}s" `)).join('');
+  // Desde el partido libre se vuelve al inicio; desde un nivel, al camino de niveles.
+  const libre = n === 'libre';
+  $('#btn-fin-casa').innerHTML = icono(libre ? 'casa' : 'mapa');
+  $('#btn-fin-casa').setAttribute('aria-label', libre ? 'Volver al inicio' : 'Volver a los niveles');
+  $('#etiqueta-fin-casa').textContent = libre ? 'Inicio' : 'Niveles';
   Voz.sonido('estrella');
   const frases = ['estrellas-' + estrellas, estrellas >= 2 ? 'fin-bien' : 'fin-otra'];
   ayuda = () => Voz.decir(...frases);
@@ -749,8 +815,11 @@ function terminar(n, estrellas) {
 }
 
 // ---------- Botones fijos ----------
-$('#btn-jugar').onclick = () => { Voz.activar(); irANiveles(true); };
-$('#btn-casa').onclick = () => irANiveles(false);
-$('#btn-fin-casa').onclick = () => irANiveles(false);
+const volver = () => (nivelActual === 'libre' ? irAInicio() : irANiveles(false));
+$('#btn-aprender').onclick = () => { Voz.activar(); saludado = true; irANiveles(true); };
+$('#btn-jugar').onclick = () => { Voz.activar(); saludado = true; empezar('libre'); };
+$('#btn-niveles-casa').onclick = () => irAInicio();
+$('#btn-casa').onclick = volver;
+$('#btn-fin-casa').onclick = volver;
 $('#btn-otra').onclick = () => empezar(nivelActual);
-document.querySelectorAll('.carpincho.guia').forEach(c => { c.onclick = () => ayuda(); });
+document.querySelectorAll('.oir').forEach(b => { b.onclick = () => { Voz.activar(); saludado = true; ayuda(); }; });
