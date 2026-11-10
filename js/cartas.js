@@ -18,6 +18,15 @@ function crearCarta(c, { conFuerza = true } = {}) {
   return b;
 }
 
+// Un dibujo de palo suelto, para tocar (nivel 0).
+function crearPalo(palo) {
+  const b = document.createElement('button');
+  b.className = 'dibujo-palo';
+  b.setAttribute('aria-label', FRASES['palo-' + palo]);
+  b.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">${DIBUJO_PALO[palo]}</svg>`;
+  return b;
+}
+
 const SVG_CARPINCHO =
   '<svg viewBox="0 0 120 120" aria-hidden="true">' +
   '<ellipse cx="30" cy="24" rx="8" ry="7" fill="#8A5A3B"/><ellipse cx="90" cy="24" rx="8" ry="7" fill="#8A5A3B"/>' +

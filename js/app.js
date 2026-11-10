@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s);
 const espera = ms => new Promise(r => setTimeout(r, ms));
 
 const NIVELES_LISTOS = 4; // el nivel 5 todavía no está hecho
-const ICONOS_NIVEL = ['💪', '🖐️', '📣', '➕', '🏆'];
+const ICONOS_NIVEL = ['📖', '💪', '🖐️', '📣', '➕', '🏆'];
 
 let progreso = { estrellas: {} };
 try { progreso = JSON.parse(localStorage.getItem('truco-progreso')) || progreso; } catch (e) { /* sin guardado */ }
@@ -29,15 +29,18 @@ function irANiveles(saludo) {
   mostrar('niveles');
   const cont = $('#niveles');
   cont.innerHTML = '';
-  for (let n = 1; n <= 5; n++) {
-    const abierto = n === 1 || (progreso.estrellas[n - 1] || 0) >= 2;
+  for (let n = 0; n <= 5; n++) {
+    // Un nivel se abre con 2 estrellas en el anterior, o si ya se jugó antes
+    // (para no cerrarle el nivel 1 a quien lo jugó antes de que existiera el 0).
+    const abierto = n === 0 || (progreso.estrellas[n - 1] || 0) >= 2 || (progreso.estrellas[n] || 0) > 0;
     const listo = n <= NIVELES_LISTOS;
     const b = document.createElement('button');
-    b.className = 'nivel' + (abierto ? '' : ' cerrado') + (abierto && !listo ? ' pronto' : '');
+    b.className = 'nivel' + (abierto ? '' : ' cerrado') + (abierto && !listo ? ' pronto' : '') +
+      (n === 0 && !progreso.estrellas[0] ? ' sugerida' : '');
     const ganadas = progreso.estrellas[n] || 0;
     b.innerHTML =
       `<span class="nivel-num">${n}</span>` +
-      `<span class="nivel-icono">${abierto ? (listo ? ICONOS_NIVEL[n - 1] : '🚧') : '🔒'}</span>` +
+      `<span class="nivel-icono">${abierto ? (listo ? ICONOS_NIVEL[n] : '🚧') : '🔒'}</span>` +
       `<span class="nivel-estrellas">${[1, 2, 3].map(i => `<i class="${i <= ganadas ? 'si' : ''}">★</i>`).join('')}</span>`;
     b.onclick = () => {
       if (!abierto) return Voz.decir('nivel-cerrado');
@@ -52,13 +55,14 @@ function irANiveles(saludo) {
 
 function empezar(n) {
   nivelActual = n;
-  [nivel1, nivel2, nivel3, nivel4][n - 1]();
+  [nivel0, nivel1, nivel2, nivel3, nivel4][n]();
 }
 
-function prepararJuego({ conMano, conZorro, practica = false }) {
+function prepararJuego({ conMano, conZorro, practica = false, tabla = false }) {
   mostrar('juego');
-  $('#p-juego').classList.toggle('duelo', !conMano);
+  $('#p-juego').classList.toggle('duelo', !conMano && !tabla);
   $('#p-juego').classList.toggle('practica', practica);
+  $('#p-juego').classList.toggle('tabla', tabla);
   $('#zorro').style.visibility = conZorro ? 'visible' : 'hidden';
   $('#mesa').innerHTML = '';
   $('#mano').innerHTML = '';
@@ -72,6 +76,134 @@ function pintarMarcadores(total, resultados) {
     const clase = r === undefined ? '' : r === 1 ? 'mio' : r === -1 ? 'suyo' : 'parda';
     return `<i class="${clase}"></i>`;
   }).join('');
+}
+
+// ---------- Nivel 0: conocer las cartas ----------
+// Escalones de la tabla, de la carta más fuerte (14) a la más bajita (1).
+const ESCALONES = Array.from({ length: FUERZA_MAX }, (_, i) => FUERZA_MAX - i)
+  .map(f => ({ f, cartas: MAZO.filter(c => c.f === f) }));
+
+// Paso de los cuatro dibujitos: termina cuando tocó los cuatro. Devuelve si el nivel sigue vivo.
+function pasoPalos(vivo) {
+  return new Promise(ok => {
+    const mesa = $('#mesa');
+    mesa.innerHTML = '';
+    const tocados = new Set();
+    let hecho = false;
+    const botones = PALOS.map(palo => {
+      const b = crearPalo(palo);
+      b.onclick = () => {
+        if (hecho) return;
+        tocados.add(palo);
+        b.classList.add('tocado');
+        b.classList.remove('sugerida');
+        Voz.sonido('carta');
+        if (tocados.size < PALOS.length) { Voz.decir('palo-' + palo); return; }
+        // El toque que completa los cuatro cierra el paso enseguida, antes de cualquier await.
+        hecho = true;
+        ayuda = () => {};
+        botones.forEach(x => { x.disabled = true; });
+        Voz.decir('palo-' + palo, 'n0-palos-bien').then(() => ok(vivo()));
+      };
+      mesa.appendChild(b);
+      return b;
+    });
+    ayuda = () => {
+      botones.forEach((b, k) => { if (!tocados.has(PALOS[k])) b.classList.add('sugerida'); });
+      Voz.decir('n0-palos');
+    };
+    Voz.decir('n0-palos');
+  });
+}
+
+// Un tramo de la tabla: el lugar siguiente brilla y al tocarlo se destapan sus cartas y se
+// escucha su frase. Los ya destapados se pueden tocar para volver a escucharlos.
+// Devuelve una promesa que termina (con si el nivel sigue vivo) cuando se destapan todos.
+// Al terminar, el tramo queda bloqueado para que un toque no corte la frase que sigue;
+// control.liberar() lo vuelve a habilitar para explorar.
+function pasoTabla(escalones, intro, vivo, control = {}) {
+  return new Promise(ok => {
+    const mesa = $('#mesa');
+    mesa.innerHTML = '';
+    const grilla = document.createElement('div');
+    grilla.className = 'grilla grilla-' + escalones.length;
+    mesa.appendChild(grilla);
+    let siguiente = 0;
+    let ocupado = false; // mientras habla un escalón recién destapado, no se toca nada
+    control.liberar = () => { ocupado = false; };
+    const lugares = escalones.map((esc, k) => {
+      const lugar = document.createElement('div');
+      lugar.className = 'escalon' + (esc.cartas.length === 2 ? ' par' : '');
+      lugar.setAttribute('role', 'button');
+      lugar.setAttribute('aria-label', FRASES['tabla-' + esc.f]);
+      lugar.onclick = async () => {
+        if (ocupado || !vivo()) return;
+        if (k < siguiente) { Voz.decir('tabla-' + esc.f); return; }
+        if (k !== siguiente) return;
+        ocupado = true;
+        siguiente++;
+        lugar.classList.remove('sugerida');
+        lugar.classList.add('destapado');
+        esc.cartas.forEach(c => lugar.appendChild(crearCarta(c)));
+        Voz.sonido('carta');
+        await Voz.decir('tabla-' + esc.f);
+        if (!vivo()) return ok(false);
+        if (siguiente < lugares.length) {
+          ocupado = false;
+          lugares[siguiente].classList.add('sugerida');
+        } else ok(true);
+      };
+      grilla.appendChild(lugar);
+      return lugar;
+    });
+    lugares[0].classList.add('sugerida');
+    ayuda = () => { if (!ocupado) Voz.decir(intro); };
+    Voz.decir(intro);
+  });
+}
+
+async function nivel0() {
+  const id = ++partida;
+  const vivo = () => id === partida;
+  prepararJuego({ conMano: false, conZorro: false, tabla: true });
+
+  // Paso A: qué es el truco. No se puede saltear tocando al carpincho.
+  const mesa = $('#mesa');
+  mesa.innerHTML = '';
+  barajar(MAZO).slice(0, 3).forEach(c => {
+    const el = crearCarta(c, { conFuerza: false });
+    el.disabled = true;
+    mesa.appendChild(el);
+  });
+  ayuda = () => {};
+  await Voz.decir('n0-intro');
+  if (!vivo()) return;
+
+  // Paso B: los cuatro dibujitos.
+  if (!(await pasoPalos(vivo))) return;
+  await espera(600);
+  if (!vivo()) return;
+
+  // Paso C: la tabla en dos tramos. Primero las campeonas, después el resto.
+  if (!(await pasoTabla(ESCALONES.slice(0, 4), 'n0-campeonas', vivo))) return;
+  ayuda = () => {};
+  await Voz.decir('n0-campeonas-fin');
+  if (!vivo()) return;
+  await espera(800);
+  if (!vivo()) return;
+  const resto = {};
+  if (!(await pasoTabla(ESCALONES.slice(4), 'n0-resto', vivo, resto))) return;
+  resto.liberar();
+
+  // Final: puede explorar la tabla; el botón amarillo (acción principal) termina el nivel.
+  const listo = document.createElement('button');
+  listo.className = 'btn-redondo sol';
+  listo.setAttribute('aria-label', 'Seguir');
+  listo.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M22 52 L42 72 L80 30" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  listo.onclick = () => terminar(0, 3);
+  $('#marcadores').appendChild(listo);
+  ayuda = () => { listo.classList.add('sugerida'); Voz.decir('n0-tabla-fin'); };
+  Voz.decir('n0-tabla-fin');
 }
 
 // ---------- Nivel 1: ¿qué carta gana? ----------

@@ -4,6 +4,9 @@ Juego web para que un nene que todavía no lee aprenda a jugar al Truco Argentin
 
 ## Cómo abrirlo
 
+Se publica con GitHub Pages desde `main` en https://alanstivelman.github.io/truco-para-chicos/ (falta confirmar que abre bien en la tablet).
+
+
 Es una página estática, sin instalación ni compilación:
 
 ```bash
@@ -16,6 +19,7 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 
 | Nivel | Qué enseña | Estado |
 |---|---|---|
+| 0 | Qué es el truco, los palos y la tabla de cartas | Listo |
 | 1 | Qué carta le gana a cuál | Listo |
 | 2 | Ganar la ronda (mejor de tres) contra el zorro | Listo |
 | 3 | El Truco: cantar, querer o no querer, a 6 puntos | Listo |
