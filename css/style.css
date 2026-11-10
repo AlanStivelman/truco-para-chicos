@@ -206,6 +206,50 @@ body.hablando .carpincho svg { animation: hablar 0.7s ease-in-out infinite; }
   justify-content: center;
 }
 
+/* ---------- Nivel 0: conocer las cartas ---------- */
+.tabla .mano { display: none; }
+.tabla .mesa { flex-wrap: wrap; align-content: center; }
+.tabla .mesa > .carta { --cw: min(26vw, 40vh); }
+.dibujo-palo {
+  width: min(20vw, 40vh);
+  height: min(20vw, 40vh);
+  border-radius: 18%;
+  background: var(--blanco);
+  border: 0.8vmin solid var(--crema-oscuro);
+}
+.dibujo-palo svg { width: 80%; height: 80%; display: block; margin: auto; }
+.dibujo-palo.tocado { border-color: var(--celeste); }
+.dibujo-palo.sugerida, .escalon.sugerida, .nivel.sugerida, .btn-redondo.sugerida { outline: 1vmin solid var(--sol); outline-offset: 0.5vmin; }
+.dibujo-palo.sugerida, .escalon.sugerida { animation: sugerir-boton 1.6s ease-in-out infinite; }
+.grilla { display: grid; gap: 2.5vmin; justify-content: center; align-content: center; }
+.grilla-4 { --cw: min(20vw, 40vh); grid-template-columns: repeat(4, auto); }
+.grilla-10 { --cw: min(9.2vw, 30vh); grid-template-columns: repeat(5, auto); }
+.escalon {
+  /* Un escalón vacío mide lo mismo que uno lleno, para que la grilla no se mueva. */
+  width: calc(var(--cw) * 1.84);
+  height: calc(var(--cw) * 1.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: calc(var(--cw) * 0.1);
+  border: 0.5vmin dashed var(--crema-oscuro);
+  cursor: pointer;
+}
+.grilla-4 .escalon { width: var(--cw); }
+.escalon.destapado { border-color: transparent; }
+.mesa .grilla .escalon .carta { --cw: inherit; pointer-events: none; flex: none; }
+/* Las cartas del mismo número van en abanico; los pares de distinto palo, separados. */
+.escalon .carta + .carta { margin-left: calc(var(--cw) * -0.72); }
+.escalon.par .carta + .carta { margin-left: calc(var(--cw) * 0.08); }
+.grilla-10 .escalon.par .carta { --cw: calc(min(9.2vw, 30vh) * 0.88); }
+@media (orientation: portrait) {
+  .tabla .mesa > .carta { --cw: min(28vw, 30vh); }
+  .dibujo-palo { width: min(38vw, 22vh); height: min(38vw, 22vh); }
+  .grilla-4 { --cw: min(38vw, 24vh); grid-template-columns: repeat(2, auto); }
+  .grilla-10 { --cw: min(23vw, 11vh); grid-template-columns: repeat(2, auto); }
+  .grilla-10 .escalon.par .carta { --cw: calc(min(23vw, 11vh) * 0.88); }
+}
+
 /* ---------- Envido ---------- */
 .carta.elegida { transform: translateY(-8%); border-color: var(--celeste-fuerte); box-shadow: 0 0 0 0.04em var(--celeste); }
 .carta.brilla { transform: scale(1.04); border-color: var(--sol); box-shadow: 0 0 0 0.05em var(--sol); }

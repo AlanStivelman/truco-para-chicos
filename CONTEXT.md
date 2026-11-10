@@ -18,18 +18,19 @@ De ahí salen las reglas de diseño que no se negocian:
 | Tema | Decisión |
 |---|---|
 | Dispositivo | Tablet, celular y computadora por igual |
-| Rival | Un personaje de la compu (el zorro). Se abre desde un link en el navegador |
-| Aprendizaje | Por niveles que se desbloquean (2 estrellas en uno abre el siguiente) |
+| Rival | Capi, de la compu. Se abre desde un link en el navegador |
+| Inicio | Dos botones grandes: **Aprender** (los niveles 0 a 5) y **Jugar** (una partida directa a 15 contra Capi, sin pasar por los niveles). Capi pregunta "¿Jugamos o aprendemos?" |
+| Aprendizaje | Por niveles que se desbloquean: 2 estrellas en uno abre el siguiente. Un nivel que ya tiene estrellas queda abierto aunque falten las del anterior |
 | Reglas de la partida completa | A 15 puntos, sin flor ni falta envido. Truco, retruco, vale cuatro, envido, real envido |
 | Voz | Grabada por el papá. Mientras falte una grabación, la lee la voz del dispositivo |
 | Cantos | Botones grandes con ícono y color propio, que dicen su nombre al tocarlos. Sin micrófono |
-| Ayuda | Se va retirando: al principio el carpincho marca la jugada sugerida, después solo si se lo toca |
-| Guía | Un carpincho con mate |
-| Estilo visual | Plano y suave, bordes redondeados, celeste y crema con amarillo sol |
-| Cartas | Españolas simplificadas, número gigante, barrita de fuerza en los primeros niveles |
+| Ayuda | Se va retirando: al principio Capi marca la jugada sugerida, después solo si se lo toca |
+| Personajes | **Capi**, una capibara tomando mate, es rival y guía a la vez: juega contra el nene y le da los consejos (globo y brillo amarillo en la jugada sugerida). No hay zorro ni carpincho aparte |
+| Estilo visual | Design system **"Truco Recreo"**, tipo figurita: fondo cielo, mesa azul, superficies blancas con contorno marino grueso y sombra dura, fuente Fredoka, íconos de trazo (sin emojis). Cada color significa una sola cosa: sol = acción principal, "te toca" y jugada sugerida; tomate = Truco; uva = Envido; pasto = solo decorado. Botones redondos de 66 px como mínimo. Fuente de verdad: https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa (mockups: https://claude.ai/artifact/SWTix64oPQV4gWZ8QuUBnF, fila B) |
+| Cartas | Baraja española ilustrada clásica (hoja de sprites del design system, 12 columnas × 5 filas, la fila 5 trae el dorso). 150 px en la mano, 90 px en la mesa. Barrita de fuerza en los primeros niveles. **Licencia pendiente** (parece "Naipes libres"): confirmar el crédito antes de publicar con esa baraja |
 | Premios | Estrellas por nivel y un festejo corto. Sin música |
 
-**La estética es provisoria.** El papá pidió priorizar la lógica y definir lo visual más adelante. No invertir en estética sin que lo pida.
+**La estética ya está definida** (Truco Recreo, arriba), pero **todavía no está aplicada en el código**: el juego sigue con el estilo viejo, un zorro rival y un carpincho guía. Hasta aplicarla, no invertir en el estilo viejo y no meter al zorro en pantallas ni frases nuevas. Si algo nuevo afecta la estética (pantallas, componentes), avisar a la sesión de diseño para sumarlo al design system.
 
 ## Variantes de reglas confirmadas
 
@@ -52,6 +53,7 @@ Otras reglas que aplica el motor:
 
 | Nivel | Qué enseña |
 |---|---|
+| 0 | Qué es el truco, los cuatro palos y la tabla de fuerza (primero las cuatro campeonas, después el resto). No se pierde |
 | 1 | Qué carta le gana a cuál |
 | 2 | Ganar la ronda (mejor de tres bazas) |
 | 3 | El truco: cantar, querer o no querer |
@@ -64,7 +66,7 @@ Página estática, sin compilación ni dependencias. Se abre con cualquier servi
 
 - `js/mazo.js`: las 40 cartas y su fuerza. Sin pantalla.
 - `js/motor.js`: reglas. Recibe acciones y devuelve eventos. Sin pantalla ni voz, se prueba con Node.
-- `js/bot.js`: el zorro. Juega simple y sin mentir, para que se entienda por qué hace cada cosa.
+- `js/bot.js`: el rival (en el código todavía es el zorro; pasa a ser Capi). Juega simple y sin mentir, para que se entienda por qué hace cada cosa.
 - `js/frases.js`: todas las frases, cada una con un id.
 - `js/voz.js`: dice frases por id. Usa `audio/<id>.mp3` si está en `audio/manifest.json`; si no, la voz del dispositivo.
 - `js/cartas.js`: dibujos de cartas y personajes.
