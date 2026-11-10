@@ -47,5 +47,6 @@ Los cambios chicos (una frase, un ajuste de estilo, un arreglo de una línea) no
 ## Git
 
 - Trabajar en una rama, nunca directo en `main`.
-- Abrir un pull request en borrador por rama.
+- Abrir un pull request por rama.
 - Al terminar cada cambio, actualizar `STATE.md`.
+- **Unir a `main` no requiere pedir permiso** (lo autorizó el papá el 2026-11-10). Se une el pull request cuando se cumplen las tres condiciones: `npm test` pasa, el cambio está verificado en navegador y, si es un cambio grande, pasó las dos revisiones de Fable con sus hallazgos corregidos o anotados en el pull request.
