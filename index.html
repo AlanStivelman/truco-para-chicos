@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#FBF3E1">
+  <title>Truco para chicos</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Inicio: un solo botón gigante. El toque también habilita el audio del navegador. -->
+  <section id="p-inicio" class="pantalla activa">
+    <div class="carpincho grande" data-carpincho></div>
+    <button id="btn-jugar" class="btn-redondo enorme" aria-label="Jugar">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 24 L78 50 L36 76 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/></svg>
+    </button>
+  </section>
+
+  <!-- Elegir nivel -->
+  <section id="p-niveles" class="pantalla">
+    <div class="barra">
+      <button class="carpincho guia" data-carpincho aria-label="Repetir"></button>
+    </div>
+    <div id="niveles" class="niveles"></div>
+  </section>
+
+  <!-- Juego -->
+  <section id="p-juego" class="pantalla">
+    <div class="barra">
+      <button id="btn-casa" class="btn-redondo" aria-label="Volver">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="carpincho guia" data-carpincho aria-label="Ayuda"></button>
+      <div id="marcadores" class="marcadores"></div>
+      <div id="zorro" class="zorro" data-zorro></div>
+    </div>
+    <div id="mesa" class="mesa"></div>
+    <div id="mano" class="mano"></div>
+  </section>
+
+  <!-- Fin de nivel -->
+  <section id="p-fin" class="pantalla">
+    <div id="estrellas" class="estrellas"></div>
+    <div class="carpincho mediano" data-carpincho></div>
+    <div class="fin-botones">
+      <button id="btn-otra" class="btn-redondo grande" aria-label="Jugar otra vez">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M74 50 A24 24 0 1 1 62 29" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/><path d="M58 14 L76 30 L54 38 Z" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-fin-casa" class="btn-redondo grande sol" aria-label="Volver a los juegos">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <script src="js/frases.js"></script>
+  <script src="js/voz.js"></script>
+  <script src="js/cartas.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
