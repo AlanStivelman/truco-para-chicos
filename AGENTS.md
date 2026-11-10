@@ -38,7 +38,7 @@ Para un cambio grande, **antes de commitear** el código:
 1. **Revisión del plan.** Antes de escribir código, escribir un plan corto (qué se cambia, en qué archivos, qué reglas toca) y pedírselo revisar a un agente revisor con el modelo **Fable** (`claude-fable-5-2`). Ajustar el plan según lo que encuentre.
 2. **Revisión del código.** Con el código escrito y las pruebas pasando, pero **sin commitear**, pedirle al revisor Fable que revise el diff (`git diff`) contra el plan y las reglas de `CONTEXT.md`.
 3. **Corregir** lo que el revisor confirme como problema real. Si algo no se corrige, anotar por qué en el pull request.
-4. Recién ahí commitear y pushear.
+4. **Apenas el revisor aprueba** (y las correcciones pasan las pruebas), commitear y pushear sin esperar a nadie más.
 
 El revisor está definido en `.claude/agents/revisor-fable.md`. Si la herramienta no lo carga, usar un agente general con el modelo Fable y las mismas instrucciones. Al revisor se le pasa el código y el plan, no las conclusiones propias: tiene que leer el código por su cuenta.
 
