@@ -12,11 +12,10 @@ function guardar() {
 }
 
 let partida = 0;          // cambia cada vez que se entra o sale de un nivel
-let ayuda = () => {};     // qué pasa al tocar al carpincho
+let ayuda = () => {};     // qué pasa al tocar a Capi
 let nivelActual = 1;
 
-document.querySelectorAll('[data-carpincho]').forEach(e => { e.innerHTML = SVG_CARPINCHO; });
-document.querySelectorAll('[data-zorro]').forEach(e => { e.innerHTML = SVG_ZORRO; });
+document.querySelectorAll('[data-carpincho]').forEach(e => { e.innerHTML = SVG_CAPI; });
 Voz.alHablar(si => document.body.classList.toggle('hablando', si));
 
 function mostrar(nombre) {
@@ -317,7 +316,7 @@ async function nivel2() {
         delZorro = elegirCarta(suya, null);
         suya.splice(suya.indexOf(delZorro), 1);
         poner('zorro', delZorro);
-        await Voz.decir('zorro-jugo', delZorro.id);
+        await Voz.decir('capi-jugo', delZorro.id);
         if (!vivo()) return;
       }
 
@@ -349,7 +348,7 @@ async function nivel2() {
         delZorro = elegirCarta(suya, mi);
         suya.splice(suya.indexOf(delZorro), 1);
         poner('zorro', delZorro);
-        await Voz.decir('zorro-jugo', delZorro.id);
+        await Voz.decir('capi-jugo', delZorro.id);
         if (!vivo()) return;
       }
 
@@ -361,7 +360,7 @@ async function nivel2() {
         $('#hueco-zorro .carta').classList.add(g === -1 ? 'gana' : 'pierde');
       }
       Voz.sonido(g === 1 ? 'bien' : 'casi');
-      await Voz.decir(g === 1 ? 'mano-tuya' : g === -1 ? 'mano-zorro' : 'parda');
+      await Voz.decir(g === 1 ? 'mano-tuya' : g === -1 ? 'mano-capi' : 'parda');
       if (!vivo()) return;
       await espera(700);
       if (!vivo()) return;
@@ -373,7 +372,7 @@ async function nivel2() {
     $('#mano').innerHTML = '';
     const quien = ganadorRonda(res, mano);
     if (quien === 1) ganadas++;
-    await Voz.decir(quien === 1 ? 'ronda-tuya' : 'ronda-zorro');
+    await Voz.decir(quien === 1 ? 'ronda-tuya' : 'ronda-capi');
     if (!vivo()) return;
   }
   terminar(2, ganadas >= 2 ? 3 : ganadas === 1 ? 2 : 1);
@@ -382,7 +381,7 @@ async function nivel2() {
 // ---------- Mesa compartida por los niveles con rival ----------
 function montarMesa() {
   $('#mesa').innerHTML =
-    `<div class="lugar"><div class="quien">${SVG_ZORRO}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
+    `<div class="lugar"><div class="quien">${SVG_CAPI}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
     `<div class="lugar"><div class="quien yo">★</div><div class="tantos" id="tantos-yo"></div><div class="hueco" id="hueco-yo"></div></div>` +
     `<div class="cantos" id="cantos"></div>`;
 }
@@ -506,13 +505,14 @@ async function mostrarEnvido(ev, e, vivo, avisos) {
   // para no tapar lo que hay en la mesa.
   const muestra = document.createElement('div');
   muestra.className = 'muestra';
-  muestra.innerHTML = `<div class="quien">${SVG_ZORRO}</div>`;
+  muestra.innerHTML = `<div class="quien">${SVG_CAPI}</div>`;
   suyas.forEach(c => { const el = crearCarta(c); el.disabled = true; el.classList.add('brilla'); muestra.appendChild(el); });
   $('#cantos').appendChild(muestra);
-  const delZorro = ['zorro-tiene', ...frasesCuenta(suyas)];
-  if (suyas.length < 2) delZorro.push('sin-par-zorro');
+  const delZorro = ['capi-tengo', ...frasesCuenta(suyas)];
+  if (suyas.length < 2) delZorro.push('sin-par-capi');
   delZorro.push(...explicarFiguras(suyas, e.repartidas[ZORRO]));
-  delZorro.push(ev.tantos[0] === ev.tantos[1] ? 'envido-empate' : ev.ganador === YO ? 'envido-tuyo' : 'envido-zorro');
+  delZorro.push(ev.tantos[0] === ev.tantos[1] ? 'envido-empate' : ev.ganador === YO ? 'envido-tuyo' : 'envido-capi');
+  if (ev.ganador === ZORRO && ev.tantos[0] !== ev.tantos[1] && !avisos.sonBuenas) { avisos.sonBuenas = true; delZorro.push('son-buenas'); }
   await Voz.decir(...delZorro);
   if (!vivo()) return false;
   await espera(1200);
@@ -529,7 +529,7 @@ async function contar(eventos, e, vivo, avisos) {
     if (ev.tipo === 'carta') {
       poner(mio ? 'yo' : 'zorro', ev.carta);
       if (mio) mostrarMano(e, false);
-      else await Voz.decir('zorro-jugo', ev.carta.id);
+      else await Voz.decir('capi-jugo', ev.carta.id);
     } else if (ev.tipo === 'baza') {
       pintarMarcadores(3, e.bazas.map(b => (b === YO ? 1 : b === ZORRO ? -1 : 0)));
       if (ev.ganador !== Motor.PARDA) {
@@ -537,7 +537,7 @@ async function contar(eventos, e, vivo, avisos) {
         $('#hueco-zorro .carta').classList.add(ev.ganador === ZORRO ? 'gana' : 'pierde');
       }
       Voz.sonido(ev.ganador === YO ? 'bien' : 'casi');
-      await Voz.decir(ev.ganador === YO ? 'mano-tuya' : ev.ganador === ZORRO ? 'mano-zorro' : 'parda');
+      await Voz.decir(ev.ganador === YO ? 'mano-tuya' : ev.ganador === ZORRO ? 'mano-capi' : 'parda');
       if (!vivo()) return false;
       await espera(700);
       if (!vivo()) return false;
@@ -545,13 +545,17 @@ async function contar(eventos, e, vivo, avisos) {
       poner('yo', null);
     } else if (ev.tipo === 'canto') {
       const esEnvido = ev.canto === 'envido' || ev.canto === 'real-envido';
-      if (mio) await Voz.decir('yo-' + ev.canto);
-      else if (esEnvido) {
+      if (mio) {
+        // La primera vez que el chico canta truco en la partida, Capi se lo piensa en voz alta.
+        const frases = ['yo-' + ev.canto];
+        if (!esEnvido && !avisos.ahBueno) { avisos.ahBueno = true; frases.push('capi-ah-bueno'); }
+        await Voz.decir(...frases);
+      } else if (esEnvido) {
         const c = e.envido.cantos;
-        await Voz.decir('zorro-' + ev.canto, 'si-quiero-envido-' + envidoEnJuego(c), 'si-no-quiero-' + envidoNoQuerido(c));
-      } else await Voz.decir('zorro-' + ev.canto);
+        await Voz.decir('capi-' + ev.canto, 'si-quiero-envido-' + envidoEnJuego(c), 'si-no-quiero-' + envidoNoQuerido(c));
+      } else await Voz.decir('capi-' + ev.canto);
     } else if (ev.tipo === 'respuesta') {
-      const frases = [(mio ? 'yo-' : 'zorro-') + (ev.quiero ? 'quiero' : 'no-quiero')];
+      const frases = [(mio ? 'yo-' : 'capi-') + (ev.quiero ? 'quiero' : 'no-quiero')];
       if (ev.quiero && ev.canto !== 'envido') frases.push('vale-' + (e.truco.nivel + 1));
       await Voz.decir(...frases);
     } else if (ev.tipo === 'envido') {
@@ -561,9 +565,9 @@ async function contar(eventos, e, vivo, avisos) {
     } else if (ev.tipo === 'puntos') {
       pintarTantos(e.puntos, e.meta);
       Voz.sonido(mio ? 'bien' : 'casi');
-      await Voz.decir((mio ? 'ganaste-' : 'zorro-gano-') + ev.puntos);
+      await Voz.decir((mio ? 'ganaste-' : 'capi-gano-') + ev.puntos);
     } else if (ev.tipo === 'fin-partida') {
-      await Voz.decir(ev.ganador === YO ? 'partida-tuya' : 'partida-zorro');
+      await Voz.decir(ev.ganador === YO ? 'partida-tuya' : 'partida-capi');
     }
     if (!vivo()) return false;
   }
@@ -593,7 +597,8 @@ async function jugarPartida({ nivel, meta, excluir, intro, reparto, id }) {
     poner('yo', null);
     mostrarMano(e, false);
     if (e.rondas > 1) {
-      await Voz.decir('otra-ronda');
+      // En la tercera ronda Capi hace una pausa para tomar mate.
+      await Voz.decir(...(e.rondas === 3 ? ['capi-mate', 'otra-ronda'] : ['otra-ronda']));
       if (!vivo()) return;
     }
     while (e.fase === 'jugando') {

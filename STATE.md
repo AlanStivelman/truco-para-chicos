@@ -15,8 +15,8 @@
 
 ## Qué está verificado
 
-- `npm test`: 30 pruebas, entre ellas las reglas del motor, 500 partidas completas entre bots y los grupos de la tabla del nivel 0.
-- Niveles 0 a 4 recorridos de punta a punta en navegador sin pantalla, en tamaño tablet y celular, sin errores de consola.
+- `npm test`: 33 pruebas, entre ellas las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0 y que existan todas las frases que pide la pantalla (y ninguna nombre al zorro ni al carpincho).
+- Niveles 0 a 4 recorridos de punta a punta en navegador sin pantalla, en tamaño tablet y celular, sin errores de consola ni frases faltantes (2026-11-10, después de pasar las frases a Capi).
 
 ## Qué no está verificado
 
@@ -27,17 +27,16 @@
 
 - Nivel 5 (partida a 15).
 - Pantalla para que el papá grabe las frases con su voz.
-- **Aplicar la estética Truco Recreo** (ver `CONTEXT.md`): baraja ilustrada, Capi, colores, Fredoka, íconos de trazo, pantalla de niveles como camino.
-- **Reemplazar al zorro y al carpincho por Capi**, también en las frases que los nombran (`zorro-*`, `n2-intro`, `n3-intro`, `n4-partida`, `partida-zorro`, `sin-par-zorro`, etc.). Antes de que el papá grabe.
+- **Aplicar la estética Truco Recreo** (ver `CONTEXT.md`): baraja ilustrada, el dibujo real de Capi, colores, Fredoka, íconos de trazo, pantalla de niveles como camino. Al hacerlo, renombrar en el código lo que todavía dice zorro o carpincho (`ZORRO`, `#hueco-zorro`, `data-carpincho`, `.carpincho`).
 - **Modo "Jugar"** desde el inicio: partida directa a 15 contra Capi (comparte casi todo con el nivel 5).
 - Confirmar que el link de GitHub Pages abre bien en la tablet (https://alanstivelman.github.io/truco-para-chicos/).
 
 ## Para retomar
 
 Orden recomendado:
-1. **Estética Truco Recreo + Capi en lugar del zorro y el carpincho**, juntos: tocan las mismas pantallas. Incluye reescribir las frases que nombran al zorro, antes de que el papá grabe.
-2. **Nivel 5 y modo "Jugar"** (comparten la partida a 15 contra Capi).
-3. **Pantalla para grabar la voz.**
+1. **Pantalla para grabar la voz** y guion de grabación (cada frase con su id y tono). El texto de las frases ya está cerrado para grabar.
+2. **Estética Truco Recreo** (Capi ya está en la voz; falta el dibujo y el resto).
+3. **Nivel 5 y modo "Jugar"** (comparten la partida a 15 contra Capi). Van a necesitar frases nuevas: "Me voy al mazo", "¿Jugamos o aprendemos?", números hasta 15.
 
 Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
 - Design system: https://claude.ai/artifact/9Jxb4GcrAZDWXMGJ1kU6Aa. Empezar por `project/README.md` y `project/tokens.json`.
@@ -46,6 +45,13 @@ Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
 - **Licencia de la baraja pendiente** (parece "Naipes libres"): confirmar y poner el crédito antes de publicar con ella.
 
 Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGENTS.md`), y unir a `main` sin pedir permiso cuando se cumplen las condiciones.
+
+## Las frases (voz de Capi)
+
+- **Habla Capi en primera persona**, como rival y guía: "Yo tiro el tres de copa", "Esa la gané yo", "¡Te canto truco!". Los cantos del nene son cortos ("¡Truco!", "¡Quiero!") y los de Capi llevan "te canto" o "sí" para que se note quién habla.
+- **Tonada de la mesa:** "¡Son buenas!" cuando Capi pierde el envido; la primera vez que el nene lo pierde, Capi le explica que se dice "son buenas". "¡Ah, bueno! Dejame pensar." la primera vez que el nene canta truco en la partida. "Esperá que tomo un matecito" antes de la tercera ronda. "¡Ojo al piojo!" en las pistas de no querer. "Dale, te toca", "me ganaste, che".
+- **Ids:** los que nombraban al zorro pasaron a `capi-*` (`capi-jugo`, `capi-truco`, `capi-gano-N`, `capi-tengo`, `mano-capi`, `envido-capi`, etc.). Se cambiaron sin miedo porque todavía no había ninguna grabación.
+- **Dibujo provisorio:** el rival se dibuja con la misma capibara que el guía, y se sacó el zorro de arriba. Es transitorio hasta la estética Truco Recreo.
 
 ## Cómo está armado el nivel 0
 
@@ -60,7 +66,6 @@ Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGE
 - **Partida a 9 puntos**, con envido, real envido y truco, sin irse al mazo.
 - **Ronda guiada 1:** el nene tiene 33, el guía le sugiere cantar envido, el rival quiere con 28 y se ve la comparación.
 - **Ronda guiada 2:** el rival canta envido con 31; el nene tiene 6 sin par y el guía le sugiere no querer.
-- (En el código, el guía es el carpincho y el rival el zorro; con la estética nueva ambos pasan a ser Capi.)
 - Al querer el envido se marcan las cartas de los tantos de los dos y se dice quién gana.
 
 ## Decisiones abiertas
