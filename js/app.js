@@ -36,7 +36,7 @@ function irAInicio() {
 let saludado = false;
 $('#p-inicio').addEventListener('click', ev => {
   Voz.activar();
-  if (saludado || ev.target.closest('button')) return;
+  if (saludado || ev.target.closest('button, a')) return;
   saludado = true;
   Voz.decir('inicio');
 });

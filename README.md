@@ -41,6 +41,7 @@ Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la vo
 - `index.html`: las cuatro pantallas (inicio, niveles, juego, fin).
 - `css/style.css`: estilos del design system Truco Recreo.
 - `img/`: la baraja española ilustrada (una hoja de 12 × 5 cartas) y Capi.
+- `CREDITOS.md` y `creditos.html`: autoría y licencias (la baraja es CC BY-SA 3.0, de Basquetteur en Wikimedia Commons).
 - `fonts/`: Fredoka (licencia SIL OFL en `fonts/OFL.txt`), servida desde el repo para que ande sin conexión.
 - `js/mazo.js`: mazo y fuerza de cada carta.
 - `js/motor.js`: reglas del truco (bazas, truco, retruco, vale cuatro, envido, real envido, puntos a 15). Sin pantalla.

@@ -31,7 +31,6 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 
 - Nivel 5 (partida a 15).
 - Pantalla para que el papá grabe las frases con su voz.
-- **Licencia de la baraja** (`img/baraja-espanola.webp`, parece "Naipes libres"): confirmar y poner el crédito antes de compartir el link.
 - **Nivel 5** en el camino sigue "pronto", aunque el botón Jugar del inicio ya ofrece la partida a 15 (sin guía).
 - Confirmar que el link de GitHub Pages abre bien en la tablet (https://alanstivelman.github.io/truco-para-chicos/).
 
