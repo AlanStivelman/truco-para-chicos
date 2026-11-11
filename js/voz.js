@@ -129,6 +129,10 @@ const Voz = (() => {
   async function decir(...ids) {
     parar();
     const mio = turno;
+    // Un id que no existe se leería como "undefined": se avisa (también con ?silencio) y se saltea.
+    const faltan = ids.filter(id => FRASES[id] === undefined);
+    if (faltan.length) console.error('Frases inexistentes:', faltan.join(', '));
+    ids = ids.filter(id => FRASES[id] !== undefined);
     if (mudo) return new Promise(r => setTimeout(r, 30));
     alHablar(true);
     // Si no hay grabaciones para estas frases (o todavía no se sabe), se habla enseguida, sin

@@ -19,7 +19,8 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 
 ## Qué está verificado
 
-- `npm test`: 44 pruebas, entre ellas la preparación de tomas, WAV y zip de la voz grabada, las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0 y que existan todas las frases que pide la pantalla (y ninguna nombre al zorro ni al carpincho).
+- `npm test`: 45 pruebas, entre ellas la preparación de tomas, WAV y zip de la voz grabada, las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0, que existan todas las frases que pide la pantalla, que no sobre ninguna y que ninguna nombre al zorro ni al carpincho.
+- Mesa de tres bazas (2026-11-11): niveles 2, 3 y 4 y el modo Jugar recorridos de punta a punta en tablet y celular, sin errores de consola; cinco botones de canto a la vez entran en pantalla en los dos tamaños.
 - Niveles 0 a 4 recorridos de punta a punta en navegador sin pantalla, en tamaño tablet y celular, sin errores de consola ni frases faltantes (2026-11-10, después de pasar las frases a Capi).
 
 ## Qué no está verificado
@@ -32,6 +33,9 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 - Tablets y celulares reales (solo emulación de tamaño).
 
 ## Pendiente
+
+- **Para la sesión de diseño:** no están en el design system la ficha de parda ("="), los íconos `flecha` e `igual`, la baza marcada cuando le toca al nene (fondo sol suave, contorno sol y flecha; el componente Baza tiene algo parecido) y, en celular, las caras de Capi y del nene en una fila arriba de las bazas.
+- **Mesa en pantallas chicas:** en 360×640 el quinto canto queda unos 27 px fuera de la mesa; en tablet vertical la muestra del envido sobresale unos 12 px; en celular apaisado (844×390) las bazas sobresalen unos 20 px. Se pueden tocar igual y no son los tamaños que se verifican.
 
 - Nivel 5 (partida a 15).
 - **Nivel 5** en el camino sigue "pronto", aunque el botón Jugar del inicio ya ofrece la partida a 15 (sin guía).
@@ -63,6 +67,12 @@ Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGE
 - **Habla Capi en primera persona**, como rival y guía: "Yo tiro el tres de copa", "Esa la gané yo", "¡Te canto truco!". Los cantos del nene son cortos ("¡Truco!", "¡Quiero!") y los de Capi llevan "te canto" o "sí" para que se note quién habla.
 - **Tonada de la mesa:** "¡Son buenas!" cuando Capi pierde el envido; la primera vez que el nene lo pierde, Capi le explica que se dice "son buenas". "¡Ah, bueno! Dejame pensar." la primera vez que el nene canta truco en la partida. "Esperá que tomo un matecito" antes de la tercera ronda. "¡Ojo al piojo!" en las pistas de no querer. "Dale, te toca", "me ganaste, che".
 - **Ids:** los que nombraban al zorro pasaron a `capi-*` (`capi-jugo`, `capi-truco`, `capi-gano-N`, `capi-tengo`, `mano-capi`, `envido-capi`, etc.). Se cambiaron sin miedo porque todavía no había ninguna grabación.
+
+## Cómo está armada la mesa (niveles 2 a 4 y modo Jugar)
+
+- A la izquierda las caras de Capi y del nene con sus puntitos de tantos (en celular, en una fila arriba); en el centro las tres bazas de la ronda; a la derecha los botones de canto (en celular, abajo).
+- Cada baza: la carta de Capi arriba, la del nene abajo y una ficha con quién la ganó (su cara, o "=" si es parda). Las cartas quedan hasta que empieza la ronda siguiente. La baza en la que tira el nene se pinta amarilla con una flecha.
+- La pantalla lleva su propio contador de baza (`bazaUI` en `js/app.js`): cuando se narra la carta que cierra una baza, el motor ya pasó a la siguiente. El ganador del motor (`YO`, `ZORRO`, `PARDA`) se pasa a 1, -1 o 0 antes de `cerrarBaza`.
 
 ## Cómo está armado el nivel 0
 
