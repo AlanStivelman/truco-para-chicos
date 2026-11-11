@@ -19,11 +19,15 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 
 ## Qué está verificado
 
-- `npm test`: 34 pruebas, entre ellas las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0, que existan todas las frases que pide la pantalla, que no sobre ninguna y que ninguna nombre al zorro ni al carpincho.
+- `npm test`: 45 pruebas, entre ellas la preparación de tomas, WAV y zip de la voz grabada, las reglas del motor, 500 partidas completas entre bots, los grupos de la tabla del nivel 0, que existan todas las frases que pide la pantalla, que no sobre ninguna y que ninguna nombre al zorro ni al carpincho.
 - Mesa de tres bazas (2026-11-11): niveles 2, 3 y 4 y el modo Jugar recorridos de punta a punta en tablet y celular, sin errores de consola; cinco botones de canto a la vez entran en pantalla en los dos tamaños.
 - Niveles 0 a 4 recorridos de punta a punta en navegador sin pantalla, en tamaño tablet y celular, sin errores de consola ni frases faltantes (2026-11-10, después de pasar las frases a Capi).
 
 ## Qué no está verificado
+
+- **La pantalla de grabar en Safari (iPad/iPhone).** Solo se probó en Chromium con micrófono falso: grabar, guardar, recargar, descargar el zip y que el juego use las tomas (del navegador y de `audio/`). En el aparato real mirar:
+  - si Safari vuelve a pedir permiso del micrófono en cada toma (se suelta después de cada una para que el iPhone no reproduzca bajito);
+  - con grabaciones a medias, si en la primera frase de la sesión que mezcla una parte grabada con una sin grabar se oye la parte leída por el dispositivo (Safari solo deja hablar a esa voz dentro del toque; sin ninguna grabación ya se probó que arranca dentro del toque).
 
 - **La voz.** Nunca se escuchó en un dispositivo real; los entornos de prueba no tienen audio.
 - Tablets y celulares reales (solo emulación de tamaño).
@@ -34,14 +38,13 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 - **Mesa en pantallas chicas:** en 360×640 el quinto canto queda unos 27 px fuera de la mesa; en tablet vertical la muestra del envido sobresale unos 12 px; en celular apaisado (844×390) las bazas sobresalen unos 20 px. Se pueden tocar igual y no son los tamaños que se verifican.
 
 - Nivel 5 (partida a 15).
-- Pantalla para que el papá grabe las frases con su voz.
 - **Nivel 5** en el camino sigue "pronto", aunque el botón Jugar del inicio ya ofrece la partida a 15 (sin guía).
 - Confirmar que el link de GitHub Pages abre bien en la tablet (https://alanstivelman.github.io/truco-para-chicos/).
 
 ## Para retomar
 
 Orden recomendado:
-1. **Pantalla para grabar la voz** y guion de grabación (cada frase con su id y tono). El texto de las frases ya está cerrado para grabar.
+1. **Que el papá pruebe la grabación en la tablet real** con 3 frases (grabar, descargar el zip, oírlas en el juego) antes de grabar todas. Después, subir el zip a `audio/`.
 2. **Nivel 5**: la partida a 15 con guía (el modo Jugar ya la juega sin guía, con `jugarLibre()`). Va a necesitar frases nuevas si se habilita irse al mazo ("Me voy al mazo").
 
 Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
@@ -50,6 +53,14 @@ Recursos de diseño (se leen con la herramienta Artifact, `action: "read"`):
 - En el asset store del design system: la baraja (`baraja-espanola.webp`, id `d2c04ba4d621f329f582c5f866035eb6`; 2000×1278, 12 columnas del 1 al 12 × 5 filas: oros, copas, espadas, bastos y dorso en la fila 5, columna 2; recorte con `background-size: 1200% 500%` y `background-position: (col/11·100)% (fila/4·100)%`) y Capi en SVG (id `fad9e455464043557de81f73052af48c`). Ya están copiados en `img/` (`baraja-espanola.webp` y `capi.svg`).
 
 Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGENTS.md`), y unir a `main` sin pedir permiso cuando se cumplen las condiciones.
+
+## La voz grabada
+
+- **`grabar.html`** (no hay botón desde el juego; https://alanstivelman.github.io/truco-para-chicos/grabar.html): una frase por vez, grande, con su grupo y una nota de tono; botón amarillo para grabar y cortar; escuchar, anterior, siguiente y "la próxima que falta"; lista por grupos con cuántas faltan y aviso de grupo "a medias".
+- **La toma:** micrófono en crudo (sin MediaRecorder, por Safari), mono a 22050 Hz, se descartan 150 ms de cada punta (el golpe del dedo), se recorta el silencio dejando 80 ms antes y 150 ms después, se lleva el pico a 0,9 y se suavizan las puntas. Avisa si no se escuchó nada o si saturó. Se guarda como WAV (lo reproduce cualquier navegador).
+- **Dónde queda:** en IndexedDB de ese navegador (`js/tomas.js`), con la huella del texto. El zip trae `audio/<id>.wav` y `audio/manifest.json` (`{ id: { archivo, huella } }`; el formato viejo, una lista de ids con `.mp3`, sigue valiendo).
+- **En el juego** (`js/voz.js`): primero la toma del navegador, después la de `audio/`, si la huella coincide con el texto actual. Se precargan todas las partes de una frase compuesta antes de empezar, hay una pausa corta entre partes de una cuenta o nombre de carta y una más larga entre oraciones, y si una grabación no carga, esa parte la lee la voz del dispositivo. Guarda decodificados los últimos 40 clips.
+- **Subir:** no por la web de GitHub (límite de 100 archivos por subida y va directo a `main`): pasarle el zip a Claude.
 
 ## Las frases (voz de Capi)
 
