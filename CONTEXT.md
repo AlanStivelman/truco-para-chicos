@@ -68,7 +68,8 @@ Página estática, sin compilación ni dependencias. Se abre con cualquier servi
 - `js/motor.js`: reglas. Recibe acciones y devuelve eventos. Sin pantalla ni voz, se prueba con Node.
 - `js/bot.js`: el rival, Capi (en el código las variables todavía dicen `ZORRO`). Juega simple y sin mentir, para que se entienda por qué hace cada cosa.
 - `js/frases.js`: todas las frases, cada una con un id.
-- `js/voz.js`: dice frases por id. Usa `audio/<id>.mp3` si está en `audio/manifest.json`; si no, la voz del dispositivo.
+- `js/voz.js`: dice frases por id. Usa la grabación del papá (guardada en el navegador o en `audio/`, listada en `audio/manifest.json`) si el texto no cambió; si no, la voz del dispositivo.
+- `grabar.html`: pantalla para que el papá grabe las frases. Es para un adulto: puede tener texto para leer, y no se llega desde el juego.
 - `js/cartas.js`: dibujos de cartas y personajes.
 - `js/app.js`: pantallas y niveles.
 - `test/`: pruebas con `node --test`.
