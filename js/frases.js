@@ -2,12 +2,19 @@
 // (hecha en grabar.html, en este navegador o subida a audio/ y listada en audio/manifest.json)
 // se usa esa; si no, la lee la voz del dispositivo. Cambiar el texto deja vieja la grabación.
 const FRASES = {
-  'hola': '¡Hola! Soy Capi y te voy a enseñar a jugar al truco.',
-  'inicio': '¡Hola! Soy Capi. ¿Jugamos o aprendemos? El libro es para aprender conmigo. El botón amarillo grande, el del triángulo, es para jugar un partido.',
+  'inicio-capi': '¡Hola! Soy Capi. ¿Jugamos o aprendemos? El libro es para aprender conmigo. El botón amarillo grande es para jugar un partido.',
   'jugar-intro': 'Jugamos un partido entero, vos contra mí, hasta quince puntos. ¡Suerte!',
-  'elegi-juego': 'Tocá un juego para empezar.',
-  'nivel-cerrado': 'Ese juego todavía está cerrado. Primero jugá el anterior.',
-  'nivel-pronto': 'Ese juego todavía se está armando. ¡Pronto vas a poder jugarlo!',
+  'camino-intro': 'Si todavía no sabés jugar al truco, empecemos por el principio.',
+  'elegi-nivel': 'Tocá un nivel y te cuento de qué se trata.',
+  'nivel-que-0': 'Nivel cero: conocemos las cartas, los cuatro dibujitos y cuáles son las más fuertes.',
+  'nivel-que-1': 'Nivel uno: aprendés qué carta le gana a cuál.',
+  'nivel-que-2': 'Nivel dos: jugamos una ronda. El que gana dos veces, gana.',
+  'nivel-que-3': 'Nivel tres: aprendés a cantar truco.',
+  'nivel-que-4': 'Nivel cuatro: aprendés el envido, con las cartas del mismo dibujito.',
+  'nivel-que-5': 'Nivel cinco: un partido entero, hasta quince.',
+  'nivel-empezar': 'Si querés jugarlo, tocá el botón amarillo grande de abajo, el del triángulo.',
+  'nivel-bloqueado': 'Ese nivel todavía está cerrado. Primero jugá el anterior.',
+  'nivel-en-obra': 'Ese nivel todavía se está armando. ¡Pronto vas a poder jugarlo!',
 
   // Nivel 0: conocer las cartas
   'n0-intro': 'En el truco jugamos de a dos. Cada uno tiene tres cartas. Los dos tiran una carta, y gana la más fuerte. Primero vamos a conocer las cartas.',

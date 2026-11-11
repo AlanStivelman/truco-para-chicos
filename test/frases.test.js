@@ -30,6 +30,7 @@ for (const n of [2, 3, 4]) ARMADAS.push('vale-' + n);
 for (const n of [1, 2, 3]) ARMADAS.push('estrellas-' + n);
 for (let f = 1; f <= 14; f++) ARMADAS.push('tabla-' + f);
 for (const p of ['espada', 'basto', 'oro', 'copa']) ARMADAS.push('palo-' + p);
+for (let n = 0; n <= 5; n++) ARMADAS.push('nivel-que-' + n);
 // Los números de los tantos (0 a 7 y 20 a 33) y los nombres de las 40 cartas.
 const NUMEROS = Array.from({ length: 34 }, (_, n) => n).filter(n => n <= 7 || n >= 20).map(n => 'num-' + n);
 const CARTAS = MAZO.map(c => c.id);
@@ -44,7 +45,7 @@ const DE_PANTALLA = new Set([
   'truco-progreso', 'hablando', 'activa', 'niveles', 'juego', 'fin', 'button', 'div', 'role', 'aria-label',
   'nivel', 'si', 'duelo', 'practica', 'tabla', 'visible', 'hidden', 'mio', 'suyo', 'tocado', 'sugerida', 'escalon',
   'destapado', 'sin-fuerza', 'pierde', 'brilla', 'muestra', 'elegida', 'fuerte', 'yo', 'zorro',
-  'toca', 'llena', 'flecha', 'igual', 'con-carta',
+  'toca', 'llena', 'flecha', 'igual', 'con-carta', 'inicio', 'elegido', 'oculto',
   // íconos, eventos del navegador y el partido libre
   'libro', 'dos', 'tres', 'megafono', 'trofeo', 'play', 'reloj', 'candado', 'casa', 'mapa', 'tilde', 'cruz',
   'click', 'pointerdown', 'resize', 'actual', 'libre',
