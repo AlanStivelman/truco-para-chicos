@@ -14,27 +14,33 @@ const Voz = (() => {
   // archivo del repo (audio/manifest.json). Si el texto de la frase cambió, la grabación no se usa.
   const fuentes = new Map(); // id -> { de: 'local' | 'repo', archivo }
   const vigente = (id, h) => !!FRASES[id] && (h === null || h === AudioUtil.huella(FRASES[id]));
-  const listo = Promise.all([
+  // Nada de esto puede trabar la voz: con tiempo límite, si no llega se sigue sin grabaciones.
+  const conLimite = (p, seg, valor) => Promise.race([p, new Promise(r => setTimeout(() => r(valor), seg * 1000))]);
+  let cargado = false;
+  conLimite(Promise.all([
     fetch('audio/manifest.json').then(r => (r.ok ? r.json() : [])).then(AudioUtil.leerManifiesto).catch(() => new Map()),
     typeof Tomas !== 'undefined' ? Tomas.metas() : Promise.resolve(new Map()),
   ]).then(([repo, locales]) => {
     for (const [id, m] of repo) if (vigente(id, m.huella)) fuentes.set(id, { de: 'repo', archivo: m.archivo });
     for (const [id, m] of locales) if (m && m.huella && vigente(id, m.huella)) fuentes.set(id, { de: 'local' });
-  }).catch(() => {});
+  }).catch(() => {}), 2).then(() => { cargado = true; });
 
   // Cada grabación se decodifica una sola vez. Si falla, esa frase la lee la voz del dispositivo.
   const memoria = new Map(); // id -> Promise<AudioBuffer|null>
   function decodificar(bytes) {
     return new Promise(ok => {
-      try { ctx.decodeAudioData(bytes.slice(0), ok, () => ok(null)); } catch (e) { ok(null); }
+      try {
+        const r = ctx.decodeAudioData(bytes.slice(0), ok, () => ok(null));
+        if (r && r.catch) r.catch(() => {}); // algunos navegadores además devuelven una promesa
+      } catch (e) { ok(null); }
     });
   }
   function grabacion(id) {
     if (!memoria.has(id)) {
       const f = fuentes.get(id);
-      const p = (f.de === 'local' ? Tomas.audio(id) : fetch('audio/' + f.archivo).then(r => (r.ok ? r.arrayBuffer() : null)))
+      const p = conLimite((f.de === 'local' ? Tomas.audio(id) : fetch('audio/' + f.archivo).then(r => (r.ok ? r.arrayBuffer() : null)))
         .then(bytes => (bytes ? decodificar(bytes) : null))
-        .catch(() => null);
+        .catch(() => null), 3, null);
       p.then(b => { if (!b && memoria.get(id) === p) memoria.delete(id); }); // se reintenta la próxima vez
       memoria.set(id, p);
       // Decodificados ocupan mucho: se guardan los últimos 40.
@@ -84,23 +90,37 @@ const Voz = (() => {
     });
   }
 
+  // Devuelve una promesa con true si sonó, o false si no se pudo (y entonces la lee el dispositivo).
   function tocar(buf) {
     return new Promise(fin => {
-      const s = ctx.createBufferSource();
-      s.buffer = buf;
-      s.connect(ctx.destination);
+      let s;
+      try {
+        s = ctx.createBufferSource();
+        s.buffer = buf;
+        s.connect(ctx.destination);
+      } catch (e) { fin(false); return; }
       // stop() no siempre dispara onended: por eso parar() llama a finAudio.
       const listoClip = () => {
         clearTimeout(limite);
         if (finAudio === listoClip) finAudio = null;
         if (fuenteActual === s) fuenteActual = null;
-        fin();
+        fin(true);
       };
-      const limite = setTimeout(listoClip, buf.duration * 1000 + 1500);
+      // Red de seguridad: si no avisa que terminó, se lo corta para que no se reanude encima de otra frase.
+      const limite = setTimeout(() => {
+        s.onended = null;
+        try { s.stop(); } catch (e) { /* ya terminó */ }
+        listoClip();
+      }, buf.duration * 1000 + 1500);
       fuenteActual = s;
       finAudio = listoClip;
       s.onended = listoClip;
-      s.start();
+      try { s.start(); } catch (e) {
+        clearTimeout(limite);
+        if (finAudio === listoClip) finAudio = null;
+        if (fuenteActual === s) fuenteActual = null;
+        fin(false);
+      }
     });
   }
 
@@ -111,8 +131,13 @@ const Voz = (() => {
     const mio = turno;
     if (mudo) return new Promise(r => setTimeout(r, 30));
     alHablar(true);
-    await listo;
-    if (mio !== turno) return;
+    // Si no hay grabaciones para estas frases (o todavía no se sabe), se habla enseguida, sin
+    // esperar nada: Safari solo deja hablar a la voz del dispositivo dentro del toque.
+    if (!cargado || !ids.some(id => fuentes.has(id))) {
+      await leer(ids.map(id => FRASES[id]).join(' '));
+      if (mio === turno) alHablar(false);
+      return;
+    }
     // Primero se cargan todas las partes, para que no haya huecos desparejos entre palabras.
     if (ctx && ctx.state !== 'running') {
       // Justo después del toque que activa el audio, el contexto puede tardar un poco en arrancar.
@@ -136,8 +161,12 @@ const Voz = (() => {
         if (mio !== turno) return;
       }
       const p = partes[i];
-      await (p.buf ? tocar(p.buf) : leer(p.texto));
+      const sono = p.buf ? await tocar(p.buf) : (await leer(p.texto), true);
       if (mio !== turno) return;
+      if (!sono) {
+        await leer(FRASES[p.primera]);
+        if (mio !== turno) return;
+      }
     }
     alHablar(false);
   }

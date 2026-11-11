@@ -9,11 +9,13 @@
     escuchar: '<path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5c1.5 1.5 1.5 5.5 0 7M19 6c3 3 3 9 0 12"/>',
     anterior: '<path d="M15 5 8 12l7 7"/>',
     siguiente: '<path d="M9 5l7 7-7 7"/>',
+    tacho: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
   };
   const icono = n => `<svg class="icono" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONOS[n]}</svg>`;
   $('#btn-anterior').innerHTML = icono('anterior');
   $('#btn-siguiente').innerHTML = icono('siguiente');
   $('#btn-escuchar').innerHTML = icono('escuchar');
+  $('#btn-borrar').insertAdjacentHTML('afterbegin', icono('tacho'));
 
   const GRUPOS = AudioUtil.agrupar(FRASES);
   const ORDEN = GRUPOS.flatMap(g => g.ids);
@@ -75,7 +77,7 @@
       d.dataset.grupo = g.id;
       d.open = abiertos.has(g.id);
       const aviso = hechas > 0 && hechas < g.ids.length ? ' <span class="g-incompleto">a medias</span>' : '';
-      d.innerHTML = `<summary><span>${g.nombre}</span> <span class="g-cuenta">${hechas} de ${g.ids.length}</span>${aviso}</summary>`;
+      d.innerHTML = `<summary>${icono('siguiente').replace('class="icono"', 'class="g-flecha"')}<span>${g.nombre}</span> <span class="g-cuenta">${hechas} de ${g.ids.length}</span>${aviso}</summary>`;
       const ul = document.createElement('ul');
       for (const id of g.ids) {
         const li = document.createElement('li');
@@ -111,6 +113,22 @@
     return ctx;
   }
 
+  // Algo salió mal en medio: se vuelve a 'quieto' para que nunca quede el botón trabado.
+  function fallo(texto) {
+    soltarMicrofono();
+    estado = 'quieto';
+    pintar();
+    mensaje(texto);
+  }
+
+  // El micrófono se suelta después de cada toma: con él abierto, el iPhone reproduce bajito.
+  function soltarMicrofono() {
+    try { if (entrada) entrada.disconnect(); if (nodo) { nodo.disconnect(); nodo.onaudioprocess = null; } } catch (e) { /* ya estaba */ }
+    entrada = nodo = null;
+    if (microfono) microfono.getTracks().forEach(t => t.stop());
+    microfono = null;
+  }
+
   async function empezar() {
     estado = 'abriendo';
     idGrabando = ORDEN[actual]; // la toma queda fija a esta frase aunque algo cambie
@@ -118,23 +136,24 @@
     pintar();
     try {
       contexto();
-      if (!microfono) {
-        microfono = await navigator.mediaDevices.getUserMedia({
-          audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: false },
-        });
-      }
+      microfono = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: false },
+      });
     } catch (e) {
-      estado = 'quieto';
-      pintar();
-      mensaje('No se pudo usar el micrófono. Revisá el permiso del navegador para esta página.');
+      fallo('No se pudo usar el micrófono. Revisá el permiso del navegador para esta página.');
       return;
     }
-    trozos = [];
-    entrada = ctx.createMediaStreamSource(microfono);
-    nodo = ctx.createScriptProcessor(4096, 1, 1);
-    nodo.onaudioprocess = ev => { trozos.push(Float32Array.from(ev.inputBuffer.getChannelData(0))); };
-    entrada.connect(nodo);
-    nodo.connect(ctx.destination); // Safari necesita que el nodo esté conectado para recibir audio
+    try {
+      trozos = [];
+      entrada = ctx.createMediaStreamSource(microfono);
+      nodo = ctx.createScriptProcessor(4096, 1, 1);
+      nodo.onaudioprocess = ev => { trozos.push(Float32Array.from(ev.inputBuffer.getChannelData(0))); };
+      entrada.connect(nodo);
+      nodo.connect(ctx.destination); // Safari necesita que el nodo esté conectado para recibir audio
+    } catch (e) {
+      fallo('No se pudo empezar a grabar. Probá recargar la página.');
+      return;
+    }
     estado = 'grabando';
     pintar();
     mensaje('Grabando… decí la frase y tocá el botón para cortar.');
@@ -143,62 +162,67 @@
   async function cortar() {
     estado = 'procesando';
     pintar();
-    entrada.disconnect();
-    nodo.disconnect();
-    nodo.onaudioprocess = null;
+    // Se sigue grabando un ratito, para no comerse el final de la última palabra.
+    await new Promise(r => setTimeout(r, 300));
+    const tasa = ctx.sampleRate;
+    soltarMicrofono();
     const id = idGrabando;
-    const largo = trozos.reduce((s, t) => s + t.length, 0);
-    const crudas = new Float32Array(largo);
-    let o = 0;
-    for (const t of trozos) { crudas.set(t, o); o += t.length; }
-    trozos = [];
-    const muestras = AudioUtil.remuestrear(crudas, ctx.sampleRate, AudioUtil.TASA);
-    const toma = AudioUtil.prepararToma(muestras, AudioUtil.TASA);
-    if (toma.aviso === 'vacia') {
-      estado = 'quieto';
-      pintar();
-      mensaje('No se escuchó nada. Acercate al micrófono y probá otra vez.');
-      return;
-    }
-    const wav = AudioUtil.aWav(toma.muestras, AudioUtil.TASA);
-    const meta = { huella: AudioUtil.huella(FRASES[id]), fecha: Date.now(), segundos: toma.muestras.length / AudioUtil.TASA };
     try {
-      await Tomas.guardar(id, wav.buffer, meta);
-      metas.set(id, meta);
-    } catch (e) {
+      const largo = trozos.reduce((s, t) => s + t.length, 0);
+      const crudas = new Float32Array(largo);
+      let o = 0;
+      for (const t of trozos) { crudas.set(t, o); o += t.length; }
+      trozos = [];
+      const muestras = AudioUtil.remuestrear(crudas, tasa, AudioUtil.TASA);
+      const toma = AudioUtil.prepararToma(muestras, AudioUtil.TASA);
+      if (toma.aviso === 'vacia') { fallo('No se escuchó nada. Acercate al micrófono y probá otra vez.'); return; }
+      const wav = AudioUtil.aWav(toma.muestras, AudioUtil.TASA);
+      const meta = { huella: AudioUtil.huella(FRASES[id]), fecha: Date.now(), segundos: toma.muestras.length / AudioUtil.TASA };
+      try {
+        await Tomas.guardar(id, wav.buffer, meta);
+        metas.set(id, meta);
+      } catch (e) {
+        fallo('No se pudo guardar la toma en este navegador. ¿Está en modo privado?');
+        return;
+      }
       estado = 'quieto';
       pintar();
-      mensaje('No se pudo guardar la toma en este navegador. ¿Está en modo privado?');
-      return;
+      mensaje(toma.aviso === 'satura'
+        ? 'Guardada, pero sonó muy fuerte y se distorsiona. Probá otra vez un poco más lejos.'
+        : 'Guardada. Escuchala; si te gusta, pasá a la siguiente.');
+      escuchar(id).catch(() => {});
+    } catch (e) {
+      trozos = [];
+      fallo('No se pudo preparar la toma. Probá otra vez.');
     }
-    estado = 'quieto';
-    pintar();
-    mensaje(toma.aviso === 'satura'
-      ? 'Guardada, pero sonó muy fuerte y se distorsiona. Probá otra vez un poco más lejos.'
-      : 'Guardada. Escuchala; si te gusta, pasá a la siguiente.');
-    escuchar(id);
   }
 
+  let turnoEscucha = 0; // cada escucha nueva (o una grabación) cancela la anterior
   function pararEscucha() {
+    turnoEscucha++;
     if (sonando) { try { sonando.stop(); } catch (e) { /* ya terminó */ } sonando = null; }
   }
 
   async function escuchar(id = ORDEN[actual]) {
     pararEscucha();
+    const mio = turnoEscucha;
     const c = contexto();
     let bytes = null;
     if (situacion(id) === 'local') bytes = await Tomas.audio(id);
     else if (situacion(id) === 'repo') {
       try { const r = await fetch('audio/' + repo.get(id).archivo); bytes = r.ok ? await r.arrayBuffer() : null; } catch (e) { bytes = null; }
     }
+    if (mio !== turnoEscucha) return;
     if (!bytes) { mensaje('No se pudo cargar esta grabación.'); return; }
-    c.decodeAudioData(bytes.slice(0), buf => {
+    const r = c.decodeAudioData(bytes.slice(0), buf => {
+      if (mio !== turnoEscucha || estado !== 'quieto') return; // mientras tanto se empezó a grabar
       const s = c.createBufferSource();
       s.buffer = buf;
       s.connect(c.destination);
       s.start();
       sonando = s;
     }, () => mensaje('No se pudo reproducir esta grabación.'));
+    if (r && r.catch) r.catch(() => {});
   }
 
   // ---------- Descargar y borrar ----------
@@ -248,7 +272,7 @@
   $('#btn-grabar').onclick = () => { if (estado === 'quieto') empezar(); else if (estado === 'grabando') cortar(); };
   $('#btn-anterior').onclick = () => ir(actual - 1);
   $('#btn-siguiente').onclick = () => ir(actual + 1);
-  $('#btn-escuchar').onclick = () => escuchar();
+  $('#btn-escuchar').onclick = () => escuchar().catch(() => mensaje('No se pudo reproducir esta grabación.'));
   $('#btn-falta').onclick = () => {
     const desde = ORDEN.findIndex((id, i) => i > actual && !['local', 'repo'].includes(situacion(id)));
     const i = desde >= 0 ? desde : ORDEN.findIndex(id => !['local', 'repo'].includes(situacion(id)));
@@ -258,7 +282,7 @@
   $('#btn-borrar').onclick = borrar;
   document.addEventListener('keydown', e => {
     // Sobre un botón, la barra espaciadora ya lo toca el navegador.
-    if (e.target.closest('button, summary, a') || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.repeat || e.target.closest('button, summary, a') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.code === 'Space') { e.preventDefault(); $('#btn-grabar').click(); }
     else if (e.key === 'ArrowRight') ir(actual + 1);
     else if (e.key === 'ArrowLeft') ir(actual - 1);

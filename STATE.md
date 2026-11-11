@@ -24,7 +24,9 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 
 ## Qué no está verificado
 
-- **La pantalla de grabar en Safari (iPad/iPhone).** Solo se probó en Chromium con micrófono falso: grabar, guardar, recargar, descargar el zip y que el juego use las tomas (del navegador y de `audio/`).
+- **La pantalla de grabar en Safari (iPad/iPhone).** Solo se probó en Chromium con micrófono falso: grabar, guardar, recargar, descargar el zip y que el juego use las tomas (del navegador y de `audio/`). En el aparato real mirar:
+  - si Safari vuelve a pedir permiso del micrófono en cada toma (se suelta después de cada una para que el iPhone no reproduzca bajito);
+  - con grabaciones a medias, si en la primera frase de la sesión que mezcla una parte grabada con una sin grabar se oye la parte leída por el dispositivo (Safari solo deja hablar a esa voz dentro del toque; sin ninguna grabación ya se probó que arranca dentro del toque).
 
 - **La voz.** Nunca se escuchó en un dispositivo real; los entornos de prueba no tienen audio.
 - Tablets y celulares reales (solo emulación de tamaño).
@@ -50,7 +52,7 @@ Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGE
 
 ## La voz grabada
 
-- **`grabar.html`** (no hay botón desde el juego): una frase por vez, grande, con su grupo y una nota de tono; botón amarillo para grabar y cortar; escuchar, anterior, siguiente y "la próxima que falta"; lista por grupos con cuántas faltan y aviso de grupo "a medias".
+- **`grabar.html`** (no hay botón desde el juego; https://alanstivelman.github.io/truco-para-chicos/grabar.html): una frase por vez, grande, con su grupo y una nota de tono; botón amarillo para grabar y cortar; escuchar, anterior, siguiente y "la próxima que falta"; lista por grupos con cuántas faltan y aviso de grupo "a medias".
 - **La toma:** micrófono en crudo (sin MediaRecorder, por Safari), mono a 22050 Hz, se descartan 150 ms de cada punta (el golpe del dedo), se recorta el silencio dejando 80 ms antes y 150 ms después, se lleva el pico a 0,9 y se suavizan las puntas. Avisa si no se escuchó nada o si saturó. Se guarda como WAV (lo reproduce cualquier navegador).
 - **Dónde queda:** en IndexedDB de ese navegador (`js/tomas.js`), con la huella del texto. El zip trae `audio/<id>.wav` y `audio/manifest.json` (`{ id: { archivo, huella } }`; el formato viejo, una lista de ids con `.mp3`, sigue valiendo).
 - **En el juego** (`js/voz.js`): primero la toma del navegador, después la de `audio/`, si la huella coincide con el texto actual. Se precargan todas las partes de una frase compuesta antes de empezar, hay una pausa corta entre partes de una cuenta o nombre de carta y una más larga entre oraciones, y si una grabación no carga, esa parte la lee la voz del dispositivo. Guarda decodificados los últimos 40 clips.

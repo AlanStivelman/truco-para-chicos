@@ -52,7 +52,8 @@ const AudioUtil = (() => {
       for (let k = i; k < fin; k++) s += m[k] * m[k];
       energias.push(Math.sqrt(s / (fin - i)));
     }
-    const maxima = Math.max(0, ...energias);
+    let maxima = 0;
+    for (const e of energias) if (e > maxima) maxima = e;
     if (maxima < 0.01) return { muestras: new Float32Array(0), aviso: 'vacia' };
     const umbral = Math.max(maxima * 0.08, 0.004);
     const primera = energias.findIndex(e => e >= umbral);

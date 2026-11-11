@@ -43,7 +43,7 @@ const Tomas = (() => {
         const c = tx.objectStore('meta').openCursor();
         c.onsuccess = () => { const cur = c.result; if (cur) { m.set(cur.key, cur.value); cur.continue(); } };
         tx.oncomplete = () => ok(m);
-        tx.onerror = () => mal(tx.error);
+        tx.onerror = tx.onabort = () => mal(tx.error);
       });
     } catch (e) { return new Map(); }
   }
