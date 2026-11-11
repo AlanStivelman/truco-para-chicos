@@ -26,6 +26,7 @@ const Voz = (() => {
     if (tts) tts.cancel();
     if (audioActual) { audioActual.pause(); audioActual = null; }
     if (finAudio) { const f = finAudio; finAudio = null; f(); }
+    alHablar(false);
   }
 
   function leer(texto) {
@@ -59,6 +60,8 @@ const Voz = (() => {
   async function decir(...ids) {
     parar();
     const mio = turno;
+    // Un id que no existe se leería como "undefined": se avisa también en modo silencio.
+    for (const id of ids) if (FRASES[id] === undefined) console.error('Frase inexistente:', id);
     if (mudo) return new Promise(r => setTimeout(r, 30));
     // Las frases seguidas sin grabación se leen juntas para que suene natural.
     const partes = [];

@@ -21,7 +21,7 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 |---|---|---|
 | 0 | Qué es el truco, los palos y la tabla de cartas | Listo |
 | 1 | Qué carta le gana a cuál | Listo |
-| 2 | Ganar la ronda (mejor de tres) contra el zorro | Listo |
+| 2 | Ganar la ronda (mejor de tres) contra Capi | Listo |
 | 3 | El Truco: cantar, querer o no querer, a 6 puntos | Listo |
 | 4 | El envido: práctica de cartas del mismo palo y partida a 9 | Listo |
 | 5 | Partida completa a 15 | Pendiente |
@@ -39,11 +39,12 @@ Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la vo
 ## Estructura
 
 - `index.html`: las cuatro pantallas (inicio, niveles, juego, fin).
-- `css/style.css`: estilos.
+- `css/style.css`: estilos (design system Truco Recreo).
+- `img/`: la baraja española ilustrada y Capi. `fonts/`: Fredoka (licencia OFL en `fonts/OFL.txt`).
 - `js/mazo.js`: mazo y fuerza de cada carta.
 - `js/motor.js`: reglas del truco (bazas, truco, retruco, vale cuatro, envido, real envido, puntos a 15). Sin pantalla.
 - `js/bot.js`: el rival de la compu.
-- `js/cartas.js`: dibujos de cartas y personajes.
+- `js/cartas.js`: cartas (recortadas de la hoja de la baraja), íconos y personajes.
 - `js/voz.js`: voz y sonidos.
 - `js/app.js`: niveles y navegación.
 
@@ -53,6 +54,6 @@ Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la vo
 npm test
 ```
 
-Prueban las reglas del motor y juegan 500 partidas completas entre dos bots.
+Prueban las reglas del motor, juegan 500 partidas completas entre dos bots y revisan que no falte ni sobre ninguna frase.
 
 Los niveles 3 y 4 usan el motor y el bot; el nivel 5 se construye sobre lo mismo.

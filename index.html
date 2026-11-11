@@ -3,52 +3,92 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#FBF3E1">
+  <meta name="theme-color" content="#9ED8F5">
   <title>Truco para chicos</title>
+  <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Inicio: un solo botón gigante. El toque también habilita el audio del navegador. -->
+  <!-- Inicio. El toque en Aprender también habilita el audio del navegador.
+       El botón Jugar (partida directa a 15) se suma cuando esté hecho el nivel 5. -->
   <section id="p-inicio" class="pantalla activa">
-    <div class="carpincho grande" data-carpincho></div>
-    <button id="btn-jugar" class="btn-redondo enorme" aria-label="Jugar">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 24 L78 50 L36 76 Z" fill="currentColor" stroke="currentColor" stroke-width="8" stroke-linejoin="round"/></svg>
-    </button>
+    <div class="sol-deco"></div>
+    <div class="nube" style="left: 7vw; top: 9vh;"></div>
+    <div class="nube" style="left: 40vw; top: 26vh; transform: scale(0.75);"></div>
+    <div class="loma"></div>
+    <div class="capi inicio-capi"><img src="img/capi.svg" alt="" draggable="false"></div>
+    <div class="globo inicio-globo">¡Vamos a aprender!</div>
+    <div class="inicio-centro">
+      <div class="titulo">
+        <h1>Truco</h1>
+        <p>para chicos</p>
+      </div>
+      <div class="con-etiqueta">
+        <button id="btn-aprender" class="btn grande sol" aria-label="Aprender a jugar con Capi"></button>
+        <span class="etiqueta">Aprender</span>
+      </div>
+    </div>
   </section>
 
-  <!-- Elegir nivel -->
+  <!-- Elegir nivel: un camino -->
   <section id="p-niveles" class="pantalla">
+    <div class="nube" style="left: 72vw; top: 20vh;"></div>
+    <div class="nube" style="left: 8vw; top: 22vh; transform: scale(0.7);"></div>
+    <div class="loma"></div>
     <div class="barra">
-      <button class="carpincho guia" data-carpincho aria-label="Repetir"></button>
+      <button id="btn-inicio" class="btn" aria-label="Volver al inicio"></button>
+      <div class="barra-centro"><h2>Aprender</h2></div>
+      <div class="barra-derecha">
+        <div id="cuenta-estrellas" class="cuenta-estrellas"></div>
+        <button class="btn btn-ayuda" aria-label="Escuchar de nuevo"></button>
+      </div>
     </div>
-    <div id="niveles" class="niveles"></div>
+    <div id="camino" class="camino"></div>
+    <button class="capi niveles-capi" aria-label="Capi: escuchar de nuevo"><img src="img/capi.svg" alt="" draggable="false"></button>
   </section>
 
   <!-- Juego -->
   <section id="p-juego" class="pantalla">
     <div class="barra">
-      <button id="btn-casa" class="btn-redondo" aria-label="Volver">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <button class="carpincho guia" data-carpincho aria-label="Ayuda"></button>
-      <div id="marcadores" class="marcadores"></div>
-      <div id="zorro" class="zorro" data-zorro></div>
+      <button id="btn-casa" class="btn" aria-label="Volver a los niveles"></button>
+      <div class="barra-centro"><div id="marcador"></div></div>
+      <button class="btn btn-ayuda" aria-label="Escuchar de nuevo"></button>
     </div>
-    <div id="mesa" class="mesa"></div>
-    <div id="mano" class="mano"></div>
+    <div class="mesa">
+      <div class="zona">
+        <div class="lado-capi">
+          <button class="capi" aria-label="Capi: ayuda"><img src="img/capi.svg" alt="" draggable="false"></button>
+          <div id="dorsos" class="dorsos"></div>
+          <div id="globo-toca" class="globo sol">¡Te toca!</div>
+        </div>
+        <div id="tablero" class="tablero"></div>
+        <div id="cantos" class="cantos"></div>
+      </div>
+      <div id="mano" class="mano"></div>
+    </div>
   </section>
 
   <!-- Fin de nivel -->
   <section id="p-fin" class="pantalla">
+    <div class="rayos"></div>
+    <div class="loma"></div>
     <div id="estrellas" class="estrellas"></div>
-    <div class="carpincho mediano" data-carpincho></div>
-    <div class="fin-botones">
-      <button id="btn-otra" class="btn-redondo grande" aria-label="Jugar otra vez">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M74 50 A24 24 0 1 1 62 29" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round"/><path d="M58 14 L76 30 L54 38 Z" fill="currentColor"/></svg>
-      </button>
-      <button id="btn-fin-casa" class="btn-redondo grande sol" aria-label="Volver a los juegos">
-        <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M18 50 L50 20 L82 50 M28 44 V80 H72 V44" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+    <div class="titulo"><h1 id="fin-titulo"></h1></div>
+    <div class="fin-abajo">
+      <div class="fin-capi-lado">
+        <div id="fin-globo" class="globo"></div>
+        <button class="capi fin-capi" aria-label="Capi: escuchar de nuevo"><img src="img/capi.svg" alt="" draggable="false"></button>
+      </div>
+      <div class="fin-botones">
+        <div class="con-etiqueta">
+          <button id="btn-otra" class="btn grande sol" aria-label="Jugar otra vez"></button>
+          <span class="etiqueta">Otra vez</span>
+        </div>
+        <div class="con-etiqueta">
+          <button id="btn-fin-niveles" class="btn mediano" aria-label="Ir a los niveles"></button>
+          <span class="etiqueta">Niveles</span>
+        </div>
+      </div>
     </div>
   </section>
 
