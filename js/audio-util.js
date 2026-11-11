@@ -154,7 +154,7 @@ const AudioUtil = (() => {
 
   // Grupos para grabar, en orden, con una nota de cómo decirlas. Cada frase cae en el primero que la acepta.
   const GRUPOS = [
-    { id: 'inicio', nombre: 'Inicio y menú', tono: 'Alegre, como recibiendo a alguien.', es: id => ['hola', 'inicio', 'jugar-intro', 'elegi-juego', 'nivel-cerrado', 'nivel-pronto'].includes(id) },
+    { id: 'inicio', nombre: 'Inicio y menú', tono: 'Alegre, como recibiendo a alguien.', es: id => ['inicio-capi', 'jugar-intro', 'camino-intro', 'elegi-nivel', 'nivel-empezar', 'nivel-bloqueado', 'nivel-en-obra'].includes(id) || id.startsWith('nivel-que-') },
     { id: 'n0', nombre: 'Nivel 0: conocer las cartas', tono: 'Contando un cuento, despacio.', es: id => id.startsWith('n0-') || id.startsWith('palo-') },
     { id: 'tabla', nombre: 'La tabla de cartas', tono: 'Despacio y claro: cada una se escucha sola.', es: id => id.startsWith('tabla-') },
     { id: 'cartas', nombre: 'Nombres de las cartas', tono: 'Seco, sin cantar y sin pausa: se pegan después de "Yo tiro" o "Gana".', es: id => id.startsWith('c-') },

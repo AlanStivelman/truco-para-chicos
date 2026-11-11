@@ -34,7 +34,7 @@ Aplicado el design system Truco Recreo (2026-11-10): baraja ilustrada, Capi como
 
 ## Pendiente
 
-- **Para la sesión de diseño:** no están en el design system la ficha de parda ("="), los íconos `flecha` e `igual`, la baza marcada cuando le toca al nene (fondo sol suave, contorno sol y flecha; el componente Baza tiene algo parecido) y, en celular, las caras de Capi y del nene en una fila arriba de las bazas.
+- **Para la sesión de diseño:** el nivel elegido del camino (anillo blanco y tinta, más grande) y el botón Empezar con la ficha del nivel no están en el design system. Tampoco están en el design system la ficha de parda ("="), los íconos `flecha` e `igual`, la baza marcada cuando le toca al nene (fondo sol suave, contorno sol y flecha; el componente Baza tiene algo parecido) y, en celular, las caras de Capi y del nene en una fila arriba de las bazas.
 - **Mesa en pantallas chicas:** en 360×640 el quinto canto queda unos 27 px fuera de la mesa; en tablet vertical la muestra del envido sobresale unos 12 px; en celular apaisado (844×390) las bazas sobresalen unos 20 px. Se pueden tocar igual y no son los tamaños que se verifican.
 
 - Nivel 5 (partida a 15).
@@ -67,6 +67,14 @@ Al trabajar: rama desde `main`, revisión con Fable en cambios grandes (ver `AGE
 - **Habla Capi en primera persona**, como rival y guía: "Yo tiro el tres de copa", "Esa la gané yo", "¡Te canto truco!". Los cantos del nene son cortos ("¡Truco!", "¡Quiero!") y los de Capi llevan "te canto" o "sí" para que se note quién habla.
 - **Tonada de la mesa:** "¡Son buenas!" cuando Capi pierde el envido; la primera vez que el nene lo pierde, Capi le explica que se dice "son buenas". "¡Ah, bueno! Dejame pensar." la primera vez que el nene canta truco en la partida. "Esperá que tomo un matecito" antes de la tercera ronda. "¡Ojo al piojo!" en las pistas de no querer. "Dale, te toca", "me ganaste, che".
 - **Ids:** los que nombraban al zorro pasaron a `capi-*` (`capi-jugo`, `capi-truco`, `capi-gano-N`, `capi-tengo`, `mano-capi`, `envido-capi`, etc.). Se cambiaron sin miedo porque todavía no había ninguna grabación.
+
+## Cómo está armado el camino de niveles
+
+- Al entrar por Aprender, Capi dice "Si todavía no sabés jugar al truco, empecemos por el principio" (una vez por carga de la página) y "Tocá un nivel y te cuento de qué se trata".
+- Tocar un nivel abierto lo elige (anillo blanco y tinta, más grande) y Capi dice de qué se trata (`nivel-que-N`) y que toque el botón amarillo grande de abajo, el del triángulo. Ahí aparece el botón **Empezar**, que arranca el nivel elegido. Tocar otro nivel cambia la elección.
+- Un nivel cerrado o en preparación también se explica (`nivel-que-N`) y después avisa que está cerrado o que se está armando; tocarlo suelta la elección anterior.
+- El botón Empezar lleva en una ficha el dibujo del nivel elegido.
+- El lugar del botón Empezar está siempre reservado, para que el camino no se mueva cuando aparece.
 
 ## Cómo está armada la mesa (niveles 2 a 4 y modo Jugar)
 

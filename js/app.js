@@ -12,7 +12,7 @@ function guardar() {
 }
 
 let partida = 0;          // cambia cada vez que se entra o sale de un nivel
-let ayuda = () => Voz.decir('inicio'); // qué pasa al tocar el parlante
+let ayuda = () => Voz.decir('inicio-capi'); // qué pasa al tocar el parlante
 let nivelActual = 1;      // un número de nivel, o 'libre' para el partido del botón Jugar
 
 document.querySelectorAll('[data-capi]').forEach(e => { e.innerHTML = SVG_CAPI; });
@@ -27,8 +27,8 @@ function mostrar(nombre) {
 function irAInicio() {
   partida++;
   mostrar('inicio');
-  ayuda = () => Voz.decir('inicio');
-  Voz.decir('inicio');
+  ayuda = () => Voz.decir('inicio-capi');
+  Voz.decir('inicio-capi');
 }
 // El navegador no deja hablar antes del primer toque: el primero que no sea en un botón
 // habilita el audio y saluda. Va en 'click' porque en pantallas táctiles 'pointerdown'
@@ -38,12 +38,23 @@ $('#p-inicio').addEventListener('click', ev => {
   Voz.activar();
   if (saludado || ev.target.closest('button, a')) return;
   saludado = true;
-  Voz.decir('inicio');
+  Voz.decir('inicio-capi');
 });
 
 // ---------- Elegir nivel ----------
+// En el camino, tocar un nivel lo elige: Capi cuenta de qué se trata y aparece el botón Empezar.
+let nivelElegido = null;
+let caminoPresentado = false; // "empecemos por el principio" se dice una vez por carga de la página
+let ayudaCamino = () => {}; // lo que repite el parlante en el camino cuando no hay nivel elegido
+function soltarElegido() {
+  if (nivelElegido !== null) ayuda = ayudaCamino;
+  nivelElegido = null;
+  document.querySelectorAll('#niveles .nivel.elegido').forEach(x => x.classList.remove('elegido'));
+  $('#empezar-caja').classList.add('oculto');
+}
 function irANiveles(saludo) {
   partida++;
+  soltarElegido();
   mostrar('niveles');
   const cont = $('#niveles');
   cont.innerHTML = '';
@@ -69,9 +80,20 @@ function irANiveles(saludo) {
       `<span class="nivel-estrellas">${[1, 2, 3].map(i => estrella(i <= ganadas)).join('')}</span>`;
     botones.push(b);
     b.onclick = () => {
-      if (!abierto) return Voz.decir('nivel-cerrado');
-      if (!listo) return Voz.decir('nivel-pronto');
-      empezar(n);
+      // Un nivel cerrado o en obra se explica, pero no se puede elegir: suelta la elección anterior.
+      if (!abierto || !listo) {
+        soltarElegido();
+        return Voz.decir('nivel-que-' + n, abierto ? 'nivel-en-obra' : 'nivel-bloqueado');
+      }
+      soltarElegido();
+      botones.forEach(x => x.classList.remove('sugerida'));
+      b.classList.add('elegido');
+      nivelElegido = n;
+      // Empezar muestra el dibujo del nivel que va a arrancar.
+      $('#btn-empezar').innerHTML = SVG_PLAY + `<span class="empezar-nivel">${icono(ICONOS_NIVEL[n])}</span>`;
+      $('#empezar-caja').classList.remove('oculto');
+      ayuda = () => Voz.decir('nivel-que-' + n, 'nivel-empezar');
+      ayuda();
     };
     cont.appendChild(b);
   }
@@ -79,8 +101,11 @@ function irANiveles(saludo) {
   $('#estrellas-total').innerHTML = estrella(true) + `<span>${total}</span>`;
   $('#estrellas-total').setAttribute('aria-label', `${total} estrellas`);
   dibujarCamino(actual);
-  ayuda = () => Voz.decir('elegi-juego');
-  if (saludo) Voz.decir('hola', 'elegi-juego'); else Voz.decir('elegi-juego');
+  const frases = ['elegi-nivel'];
+  if (saludo && !caminoPresentado) { caminoPresentado = true; frases.unshift('camino-intro'); }
+  ayudaCamino = () => Voz.decir(...frases);
+  ayuda = ayudaCamino;
+  Voz.decir(...frases);
 }
 
 // El camino une los niveles en orden. Va pintado de amarillo hasta el que toca jugar.
@@ -855,6 +880,13 @@ function terminar(n, estrellas) {
 // ---------- Botones fijos ----------
 const volver = () => (nivelActual === 'libre' ? irAInicio() : irANiveles(false));
 $('#btn-aprender').onclick = () => { Voz.activar(); saludado = true; irANiveles(true); };
+$('#btn-empezar').onclick = () => {
+  // Sin nivel elegido (o fuera del camino) no hace nada: así un doble toque no arranca dos veces.
+  if (nivelElegido === null || !$('#p-niveles').classList.contains('activa')) return;
+  const n = nivelElegido;
+  nivelElegido = null;
+  empezar(n);
+};
 $('#btn-jugar').onclick = () => { Voz.activar(); saludado = true; empezar('libre'); };
 $('#btn-niveles-casa').onclick = () => irAInicio();
 $('#btn-casa').onclick = volver;

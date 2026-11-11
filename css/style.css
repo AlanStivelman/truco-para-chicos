@@ -651,3 +651,25 @@ body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0
   .mesa .cantos { align-self: stretch; flex-wrap: wrap; align-content: center; gap: 2vmin 2.4vmin; }
   .mesa .canto { --lado: clamp(66px, 11vh, 136px); }
 }
+
+/* ---------- Camino: nivel elegido y botón Empezar ---------- */
+/* El lugar del botón queda siempre reservado, para que el camino no se mueva al aparecer. */
+.empezar-caja { flex: none; position: relative; z-index: 2; padding-bottom: 1vh; }
+.empezar-caja.oculto { visibility: hidden; }
+.nivel.elegido {
+  --lado: clamp(100px, 17vmin, 170px);
+  z-index: 2;
+  transform: translateY(-6px);
+  box-shadow: 0 0 0 6px var(--blanco), 0 0 0 11px var(--tinta), 8px 8px 0 11px var(--tinta);
+}
+/* El dibujo del nivel elegido, en una ficha sobre el botón Empezar. */
+#btn-empezar { position: relative; }
+.empezar-nivel {
+  position: absolute; left: -10px; top: -10px; width: 44%; height: 44%;
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--blanco); color: var(--tinta); border: var(--borde-fino) solid var(--tinta);
+}
+.empezar-nivel .icono { width: 62%; height: 62%; }
+@media (orientation: portrait) {
+  .niveles { padding-bottom: 4vh; }
+}
