@@ -81,6 +81,8 @@ const TRAZOS = {
   repetir: '<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>',
   dos: '<rect x="2.5" y="5" width="8" height="12" rx="1.5" transform="rotate(-8 6.5 11)"/><rect x="13.5" y="5" width="8" height="12" rx="1.5" transform="rotate(8 17.5 11)"/><path d="M11 18.5h2"/>',
   tres: '<circle cx="5" cy="12" r="3"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="12" r="3"/>',
+  flecha: '<path d="M12 20V5M6 11l6-6 6 6"/>',
+  igual: '<path d="M6 9.5h12M6 14.5h12"/>',
   trofeo: '<path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8M9 18h6v3H9z"/>',
 };
 function icono(nombre) {

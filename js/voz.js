@@ -59,10 +59,13 @@ const Voz = (() => {
   async function decir(...ids) {
     parar();
     const mio = turno;
+    // Un id que no existe se leería como "undefined": se avisa (también con ?silencio) y se saltea.
+    const faltan = ids.filter(id => FRASES[id] === undefined);
+    if (faltan.length) console.error('Frases inexistentes:', faltan.join(', '));
     if (mudo) return new Promise(r => setTimeout(r, 30));
     // Las frases seguidas sin grabación se leen juntas para que suene natural.
     const partes = [];
-    for (const id of ids) {
+    for (const id of ids.filter(x => FRASES[x] !== undefined)) {
       if (grabadas.has(id)) partes.push({ audio: id });
       else if (partes.length && partes[partes.length - 1].texto !== undefined) partes[partes.length - 1].texto += ' ' + FRASES[id];
       else partes.push({ texto: FRASES[id] });

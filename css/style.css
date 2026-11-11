@@ -393,7 +393,6 @@ body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0
 .carta.brilla { transform: scale(1.04); box-shadow: 0 0 0 0.04em var(--sol), 0 0 0 0.065em var(--tinta); }
 
 /* ---------- Lugares de la mesa ---------- */
-.lugar { display: flex; flex-direction: column; align-items: center; gap: 2vmin; }
 .quien {
   width: clamp(52px, 9vmin, 84px);
   height: clamp(52px, 9vmin, 84px);
@@ -404,17 +403,6 @@ body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0
   border: var(--borde-fino) solid var(--tinta);
   overflow: hidden;
 }
-.hueco {
-  --cw: min(19vw, 17vh);
-  width: var(--cw);
-  height: calc(var(--cw) * 1.534);
-  border-radius: calc(var(--cw) * 0.07);
-  border: var(--borde) dashed var(--hueco-borde);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hueco .carta { flex: none; }
 .tantos { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8vmin; max-width: min(19vw, 17vh); min-height: clamp(10px, 2vmin, 16px); }
 .tantos i {
   width: clamp(10px, 2vmin, 16px);
@@ -582,7 +570,7 @@ body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0
   .canto { --lado: clamp(76px, 20vw, 100px); }
   .mano { gap: 1.5vmin; min-height: calc(min(28vw, 20vh) * 1.534 + 14px); }
   .mano .carta { --cw: min(28vw, 20vh); }
-  .mesa .carta, .hueco { --cw: min(32vw, 19vh); }
+  .mesa .carta { --cw: min(32vw, 19vh); }
   .tantos { max-width: min(32vw, 19vh); }
   .mesa .muestra .carta { --cw: min(18vw, 11vh); }
 
@@ -599,4 +587,67 @@ body.hablando .capi svg, body.hablando .quien:not(.yo) svg { animation: hablar 0
 
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Las tres bazas (componente Baza del design system) ---------- */
+#p-juego { --cb: min(8.6vw, 11vh); --ficha: clamp(36px, 5.6vmin, 52px); }
+.jugadores { display: flex; flex-direction: column; gap: 3vmin; flex: none; }
+.jugador { display: flex; flex-direction: column; align-items: center; gap: 1vmin; }
+.jugadores { padding-block: 16px; }
+/* Los puntitos de tantos van en filas de 5, como se anotan los porotos. */
+.jugador .tantos { --punto: 14px; --separa: 6px; gap: var(--separa); max-width: calc(var(--punto) * 5 + var(--separa) * 4); }
+.jugador .tantos i { width: var(--punto); height: var(--punto); }
+.bazas { display: flex; gap: clamp(8px, 2vmin, 24px); flex: none; }
+.baza {
+  position: relative;
+  width: calc(var(--cb) + 2 * clamp(6px, 1.4vmin, 14px));
+  height: calc(var(--cb) * 1.534 * 1.75 + var(--ficha) + 34px);
+  border-radius: clamp(14px, 2.6vmin, 24px);
+  background: var(--mesa-hueco);
+  border: var(--borde) solid transparent;
+}
+.baza.toca { background: rgba(255, 201, 60, 0.28); border-color: var(--sol); }
+.lugar-carta {
+  position: absolute; left: 50%; width: var(--cb); height: calc(var(--cb) * 1.534); margin-left: calc(var(--cb) / -2);
+  border-radius: calc(var(--cb) * 0.08); border: var(--borde-fino) dashed var(--hueco-borde);
+  display: flex; align-items: center; justify-content: center; color: var(--blanco);
+}
+.lugar-carta.arriba { top: 6px; }
+.lugar-carta.abajo { top: calc(6px + var(--cb) * 1.534 * 0.75); }
+/* El hueco de arriba vacío no se pisa con el de abajo, y el de abajo vacío no cruza la carta de Capi. */
+.lugar-carta.arriba:not(.con-carta) { height: calc(var(--cb) * 1.534 * 0.75 - 6px); }
+.lugar-carta.arriba.con-carta + .lugar-carta.abajo:not(.con-carta) { top: calc(10px + var(--cb) * 1.534); height: calc(var(--cb) * 1.534 * 0.75 - 4px); }
+.lugar-carta.con-carta { border-color: transparent; }
+.mesa .baza .carta { --cw: var(--cb); position: absolute; inset: calc(var(--borde-fino) * -1); }
+.lugar-carta.abajo .carta { transform: rotate(3deg); }
+.lugar-carta .icono { width: 44%; height: 44%; display: none; }
+.baza.toca .lugar-carta.abajo { border: var(--borde) dashed var(--blanco); }
+.baza.toca .lugar-carta.abajo .icono { display: block; }
+.baza .carta.pierde { opacity: 0.5; transform: none; z-index: 1; }
+.baza .carta.gana { z-index: 2; }
+.lugar-carta.abajo .carta.pierde { transform: rotate(3deg); }
+.ficha {
+  position: absolute; left: 50%; bottom: 6px; width: var(--ficha); height: var(--ficha); margin-left: calc(var(--ficha) / -2);
+  border-radius: 50%; border: var(--borde-fino) dashed var(--hueco-borde); overflow: hidden;
+  display: flex; align-items: center; justify-content: center; color: var(--tinta);
+}
+.ficha.llena { background: var(--blanco); border: var(--borde-fino) solid var(--tinta); }
+.ficha svg { width: 84%; height: 84%; }
+.ficha .icono { width: 64%; height: 64%; }
+
+@media (orientation: portrait) {
+  #p-juego { --cb: min(18vw, 8.5vh); }
+  .mesa .cantos { flex-wrap: wrap; gap: 16px 14px; }
+  .mesa .canto { --lado: clamp(66px, 17vw, 100px); }
+  /* Las caras van en una fila, cada una con sus tantos al lado, para dejar alto a los cantos. */
+  .mesa .jugadores { flex-direction: row; width: 100%; justify-content: center; gap: 6vw; }
+  .mesa .jugador { flex-direction: row; gap: 2vw; }
+  .mesa .quien { width: 48px; height: 48px; }
+  .jugador .tantos { --punto: 12px; }
+}
+
+/* En apaisado los cantos entran en el alto de la mesa: si no caben en una columna, van en dos. */
+@media (orientation: landscape) {
+  .mesa .cantos { align-self: stretch; flex-wrap: wrap; align-content: center; gap: 2vmin 2.4vmin; }
+  .mesa .canto { --lado: clamp(66px, 11vh, 136px); }
 }

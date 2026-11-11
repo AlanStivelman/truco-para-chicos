@@ -365,8 +365,7 @@ async function nivel2() {
     const res = [];
     let turno = mano;
     pintarMarcadores(3, res);
-    poner('zorro', null);
-    poner('yo', null);
+    limpiarBazas();
     if (r > 0) {
       await Voz.decir('otra-ronda');
       if (!vivo()) return;
@@ -394,9 +393,11 @@ async function nivel2() {
       });
       const marcar = () => botones[mia.indexOf(sugerida)].classList.add('sugerida');
       ayuda = () => { marcar(); Voz.decir(pista); };
+      marcarToca(true);
       if (guiado) { marcar(); Voz.decir(pista); } else Voz.decir('te-toca');
       const mi = await new Promise(ok => botones.forEach((el, k) => { el.onclick = () => ok(mia[k]); }));
       if (!vivo()) return;
+      marcarToca(false);
       ayuda = () => {};
       Voz.parar();
       mia.splice(mia.indexOf(mi), 1);
@@ -417,17 +418,12 @@ async function nivel2() {
       const g = mi.f > delZorro.f ? 1 : mi.f < delZorro.f ? -1 : 0;
       res.push(g);
       pintarMarcadores(3, res);
-      if (g !== 0) {
-        $('#hueco-yo .carta').classList.add(g === 1 ? 'gana' : 'pierde');
-        $('#hueco-zorro .carta').classList.add(g === -1 ? 'gana' : 'pierde');
-      }
+      cerrarBaza(g);
       Voz.sonido(g === 1 ? 'bien' : 'casi');
       await Voz.decir(g === 1 ? 'mano-tuya' : g === -1 ? 'mano-capi' : 'parda');
       if (!vivo()) return;
       await espera(700);
       if (!vivo()) return;
-      poner('zorro', null);
-      poner('yo', null);
       turno = g !== 0 ? g : mano; // después de una parda sale el que es mano
     }
 
@@ -441,16 +437,55 @@ async function nivel2() {
 }
 
 // ---------- Mesa compartida por los niveles con rival ----------
+// La mesa de los niveles con rival: las caras con sus tantos, las tres bazas de la ronda y los cantos.
+// Cada baza tiene la carta de Capi arriba, la del nene abajo y una ficha con quién la ganó.
 function montarMesa() {
   $('#mesa').innerHTML =
-    `<div class="lugar"><div class="quien">${SVG_CAPI}</div><div class="tantos" id="tantos-zorro"></div><div class="hueco" id="hueco-zorro"></div></div>` +
-    `<div class="lugar"><div class="quien yo">${SVG_NENE}</div><div class="tantos" id="tantos-yo"></div><div class="hueco" id="hueco-yo"></div></div>` +
-    `<div class="cantos" id="cantos"></div>`;
+    `<div class="jugadores">` +
+    `<div class="jugador"><div class="quien">${SVG_CAPI}</div><div class="tantos" id="tantos-zorro"></div></div>` +
+    `<div class="jugador"><div class="quien yo">${SVG_NENE}</div><div class="tantos" id="tantos-yo"></div></div>` +
+    `</div><div class="bazas" id="bazas"></div><div class="cantos" id="cantos"></div>`;
+  limpiarBazas();
 }
+// bazaUI es la baza en la que se está jugando. La lleva la pantalla y no el motor: cuando se
+// narra la carta que cierra una baza, el motor ya pasó a la siguiente.
+let bazaUI = 0;
+function limpiarBazas() {
+  bazaUI = 0;
+  $('#bazas').innerHTML = [0, 1, 2].map(i =>
+    `<div class="baza" id="baza-${i}"><div class="lugar-carta arriba"></div>` +
+    `<div class="lugar-carta abajo">${icono('flecha')}</div><div class="ficha"></div></div>`).join('');
+}
+// Pone una carta en la baza actual: la de Capi arriba, la del nene abajo.
 function poner(quien, c) {
-  const h = $('#hueco-' + quien);
-  h.innerHTML = '';
-  if (c) { h.appendChild(crearCarta(c)); Voz.sonido('carta'); }
+  const baza = $('#baza-' + bazaUI);
+  if (!baza) return;
+  const lugar = baza.querySelector(quien === 'yo' ? '.abajo' : '.arriba');
+  lugar.querySelectorAll('.carta').forEach(x => x.remove());
+  const el = crearCarta(c);
+  el.disabled = true; // las de la mesa no se tocan
+  lugar.appendChild(el);
+  lugar.classList.add('con-carta');
+  Voz.sonido('carta');
+}
+// Cierra la baza actual. g: 1 la ganó el nene, -1 Capi, 0 parda.
+function cerrarBaza(g) {
+  const baza = $('#baza-' + bazaUI);
+  if (!baza) return;
+  baza.classList.remove('toca');
+  if (g !== 0) {
+    baza.querySelector('.abajo .carta')?.classList.add(g === 1 ? 'gana' : 'pierde');
+    baza.querySelector('.arriba .carta')?.classList.add(g === -1 ? 'gana' : 'pierde');
+  }
+  const ficha = baza.querySelector('.ficha');
+  ficha.classList.add('llena');
+  ficha.innerHTML = g === 1 ? SVG_NENE : g === -1 ? SVG_CAPI : icono('igual');
+  bazaUI++;
+}
+// Marca (o desmarca) la baza en la que le toca tirar al nene.
+function marcarToca(si) {
+  document.querySelectorAll('.baza.toca').forEach(b => b.classList.remove('toca'));
+  if (si) $('#baza-' + bazaUI)?.classList.add('toca');
 }
 function pintarTantos(puntos, meta) {
   ['yo', 'zorro'].forEach((q, k) => {
@@ -515,6 +550,7 @@ function pedirAccion(e, guiado, excluir) {
       elegido = true;
       ayuda = () => {};
       Voz.parar();
+      marcarToca(false);
       $('#cantos').innerHTML = '';
       document.querySelectorAll('#mano .carta').forEach(el => { el.disabled = true; el.classList.remove('sugerida'); });
       ok(a);
@@ -525,6 +561,7 @@ function pedirAccion(e, guiado, excluir) {
       el.onclick = () => elegir({ tipo: 'carta', carta: c });
       if (sugerida.tipo === 'carta' && sugerida.carta.id === c.id) elSugerido = el;
     });
+    if (puedeTirar) marcarToca(true);
     const cantos = $('#cantos');
     cantos.innerHTML = '';
     permitidas.filter(a => a.tipo !== 'carta').forEach(a => {
@@ -555,7 +592,7 @@ async function mostrarEnvido(ev, e, vivo, avisos) {
     avisos.figuras = true;
     return ['figuras-cero'];
   };
-  const brillos = mias.map(c => document.querySelector(`#mano [data-id="${c.id}"], #hueco-yo [data-id="${c.id}"]`)).filter(Boolean);
+  const brillos = mias.map(c => document.querySelector(`#mano [data-id="${c.id}"], .baza [data-id="${c.id}"]`)).filter(Boolean);
   brillos.forEach(el => el.classList.add('brilla'));
   const frases = ['vos-tenes', ...frasesCuenta(mias)];
   if (mias.length < 2) frases.push('sin-par-yo');
@@ -594,17 +631,13 @@ async function contar(eventos, e, vivo, avisos) {
       else await Voz.decir('capi-jugo', ev.carta.id);
     } else if (ev.tipo === 'baza') {
       pintarMarcadores(3, e.bazas.map(b => (b === YO ? 1 : b === ZORRO ? -1 : 0)));
-      if (ev.ganador !== Motor.PARDA) {
-        $('#hueco-yo .carta').classList.add(ev.ganador === YO ? 'gana' : 'pierde');
-        $('#hueco-zorro .carta').classList.add(ev.ganador === ZORRO ? 'gana' : 'pierde');
-      }
+      // El motor dice el ganador como YO (0), ZORRO (1) o PARDA; la ficha usa 1, -1 o 0.
+      cerrarBaza(ev.ganador === YO ? 1 : ev.ganador === ZORRO ? -1 : 0);
       Voz.sonido(ev.ganador === YO ? 'bien' : 'casi');
       await Voz.decir(ev.ganador === YO ? 'mano-tuya' : ev.ganador === ZORRO ? 'mano-capi' : 'parda');
       if (!vivo()) return false;
       await espera(700);
       if (!vivo()) return false;
-      poner('zorro', null);
-      poner('yo', null);
     } else if (ev.tipo === 'canto') {
       const esEnvido = ev.canto === 'envido' || ev.canto === 'real-envido';
       if (mio) {
@@ -655,8 +688,7 @@ async function jugarPartida({ nivel, meta, excluir, intro, reparto, id }) {
     const guiado = !!cartas;
     Motor.nuevaRonda(e, cartas);
     pintarMarcadores(3, []);
-    poner('zorro', null);
-    poner('yo', null);
+    limpiarBazas();
     mostrarMano(e, false);
     if (e.rondas > 1) {
       // En la tercera ronda Capi hace una pausa para tomar mate.
