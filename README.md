@@ -28,7 +28,11 @@ y abrir `http://localhost:8000`. También funciona abriendo `index.html` directa
 
 ## Voz
 
-Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la voz en español del dispositivo. Para usar una grabación propia, guardarla como `audio/<id>.mp3` y agregar el id a `audio/manifest.json`.
+Las frases están en `js/frases.js`, cada una con un id. Si hay una grabación del papá para una frase, el juego usa esa; si no, la lee la voz en español del dispositivo.
+
+**Para grabar:** abrir `grabar.html` (en GitHub Pages: https://alanstivelman.github.io/truco-para-chicos/grabar.html), dar permiso al micrófono y grabar frase por frase. Lo grabado queda en ese navegador y el juego ya lo usa en ese mismo aparato. Para que suene en todos lados, tocar "Descargar las grabaciones (.zip)" y pasarle el zip a Claude, que lo descomprime en `audio/` (trae `audio/<id>.wav` y `audio/manifest.json`) y lo sube con un pull request.
+
+Cada grabación guarda una huella del texto: si después se cambia el texto de una frase, la grabación vieja deja de usarse y la pantalla de grabar la marca para regrabar.
 
 ## Documentos para trabajar en el proyecto
 
@@ -47,7 +51,10 @@ Las frases están en `js/frases.js`, cada una con un id. Por ahora las lee la vo
 - `js/motor.js`: reglas del truco (bazas, truco, retruco, vale cuatro, envido, real envido, puntos a 15). Sin pantalla.
 - `js/bot.js`: el rival de la compu.
 - `js/cartas.js`: cartas, Capi e íconos.
-- `js/voz.js`: voz y sonidos.
+- `js/voz.js`: voz y sonidos. Usa las grabaciones (las del navegador primero, después las de `audio/`) y si no, la voz del dispositivo.
+- `grabar.html`, `js/grabar.js`, `css/grabar.css`: pantalla para que el papá grabe las frases.
+- `js/audio-util.js`: preparar tomas, WAV, zip y grupos de frases. Sin pantalla, se prueba en Node.
+- `js/tomas.js`: las grabaciones guardadas en el navegador (IndexedDB).
 - `js/app.js`: niveles y navegación.
 
 ## Pruebas

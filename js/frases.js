@@ -1,6 +1,6 @@
-// Todas las frases que dice el juego. Cada una tiene un id: si existe una
-// grabación audio/<id>.mp3 (listada en audio/manifest.json) se usa esa;
-// si no, la lee la voz del dispositivo.
+// Todas las frases que dice el juego. Cada una tiene un id: si hay una grabación del papá
+// (hecha en grabar.html, en este navegador o subida a audio/ y listada en audio/manifest.json)
+// se usa esa; si no, la lee la voz del dispositivo. Cambiar el texto deja vieja la grabación.
 const FRASES = {
   'hola': '¡Hola! Soy Capi y te voy a enseñar a jugar al truco.',
   'inicio': '¡Hola! Soy Capi. ¿Jugamos o aprendemos? El libro es para aprender conmigo. El botón amarillo grande, el del triángulo, es para jugar un partido.',
@@ -153,3 +153,5 @@ for (let n = 0; n <= 33; n++) if (n <= 7 || n >= 20) FRASES['num-' + n] = String
     for (const n in nombres) FRASES[`c-${n}-${palo}`] = `el ${nombres[n]} de ${palo}.`;
   }
 })();
+
+if (typeof module !== 'undefined') module.exports = FRASES;

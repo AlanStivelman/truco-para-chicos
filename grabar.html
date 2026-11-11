@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#9ED8F5">
+  <title>Grabar la voz · Truco para chicos</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/grabar.css">
+</head>
+<body class="grabar">
+  <!-- Pantalla para el papá: graba cada frase con su voz. No se llega desde el juego. -->
+  <header class="g-cabecera">
+    <h1>Grabar la voz de Capi</h1>
+    <div id="progreso" class="pastilla" aria-live="polite"></div>
+  </header>
+
+  <main>
+    <section class="g-tarjeta" aria-labelledby="frase">
+      <p class="g-grupo"><span id="grupo"></span> · <span id="tono"></span></p>
+      <p id="frase" class="g-frase"></p>
+      <p class="g-pie"><span id="id-frase" class="g-id"></span> <span id="estado" class="g-estado"></span></p>
+    </section>
+
+    <div class="g-controles">
+      <button id="btn-anterior" class="btn-redondo" aria-label="Frase anterior"></button>
+      <button id="btn-grabar" class="btn-redondo enorme sol" aria-label="Grabar"></button>
+      <button id="btn-escuchar" class="btn-redondo" aria-label="Escuchar la toma"></button>
+      <button id="btn-siguiente" class="btn-redondo" aria-label="Frase siguiente"></button>
+    </div>
+    <p class="g-ayuda">Tocá el botón amarillo, decí la frase y volvé a tocarlo. En la compu: barra espaciadora para grabar y las flechas para moverte.</p>
+    <p id="mensaje" class="g-mensaje" role="status" aria-live="polite"></p>
+    <p class="g-centro"><button id="btn-falta" class="g-boton">Ir a la próxima que falta</button></p>
+
+    <section class="g-lista" aria-label="Todas las frases">
+      <h2>Todas las frases</h2>
+      <p class="g-nota">Conviene completar cada grupo entero: si un grupo queda a medias, el juego mezcla tu voz con la del dispositivo dentro de una misma frase (por ejemplo, "Yo tiro" con tu voz y la carta con la otra).</p>
+      <div id="grupos"></div>
+    </section>
+
+    <section class="g-final">
+      <h2>Cuando termines</h2>
+      <p>Lo que grabás queda guardado en este navegador, y el juego ya lo usa en este mismo aparato. Para que suene en todos lados, descargá las grabaciones y pasale el archivo .zip a Claude para que lo suba al juego.</p>
+      <p class="g-centro"><button id="btn-descargar" class="g-boton sol">Descargar las grabaciones (.zip)</button></p>
+      <p class="g-centro"><a class="g-boton" href="./">Volver al juego</a></p>
+      <p class="g-centro g-borrar"><button id="btn-borrar" class="g-boton">Borrar las grabaciones de este aparato</button></p>
+    </section>
+  </main>
+
+  <script src="js/frases.js"></script>
+  <script src="js/audio-util.js"></script>
+  <script src="js/tomas.js"></script>
+  <script src="js/grabar.js"></script>
+</body>
+</html>
